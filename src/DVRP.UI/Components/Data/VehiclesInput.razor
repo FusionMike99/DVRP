@@ -1,0 +1,15 @@
+﻿@using DVRP.Domain.Entities;
+
+<DataGrid TItem="Vehicle" Data="@Vehicles" @bind-SelectedRow="@_selectedVehicle"
+          Editable Responsive ShowPager CommandMode="DataGridCommandMode.ButtonRow">
+    <DataGridColumns>
+        <DataGridNumericColumn Field="@nameof(Vehicle.Id)" Caption="Id" Sortable="false" />
+        <DataGridNumericColumn Field="@nameof(Vehicle.Capacity)" Caption="Capacity" Editable />
+        <DataGridNumericColumn Field="@nameof(Vehicle.DepotId)" Caption="Depot Id" Editable />
+    </DataGridColumns>
+    <ButtonRowTemplate>
+        <Button Color="Color.Success" Clicked="context.NewCommand.Clicked">New</Button>
+        <Button Color="Color.Primary" Disabled="(_selectedVehicle is null)" Clicked="context.EditCommand.Clicked">Edit</Button>
+        <Button Color="Color.Danger" Disabled="(_selectedVehicle is null)" Clicked="context.DeleteCommand.Clicked">Delete</Button>
+    </ButtonRowTemplate>
+</DataGrid>

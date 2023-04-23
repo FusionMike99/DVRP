@@ -1,0 +1,37 @@
+﻿<Card Margin="Margin.Is4.OnY">
+    <CardHeader>
+        <CardTitle>Ant Colony Optimization Parameters</CardTitle>
+    </CardHeader>
+    <CardBody>
+        <Field Horizontal>
+            <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Max Iterations</FieldLabel>
+            <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
+                <NumericEdit Min="1" Step="1" @bind-Value="@Parameters.MaxIterations" />
+            </FieldBody>
+        </Field>
+        <Field Horizontal>
+            <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Alpha</FieldLabel>
+            <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
+                <NumericEdit Min="0" Step="0.05M" @bind-Value="@Parameters.Alpha" />
+            </FieldBody>
+        </Field>
+        <Field Horizontal>
+            <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Beta</FieldLabel>
+            <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
+                <NumericEdit Min="0" Step="0.05M" @bind-Value="@Parameters.Beta" />
+            </FieldBody>
+        </Field>
+        <Field Horizontal>
+            <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Evaporation Rate</FieldLabel>
+            <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
+                <NumericEdit Min="0" Step="0.05M" @bind-Value="@Parameters.EvaporationRate" />
+            </FieldBody>
+        </Field>
+        <Field Horizontal>
+            <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Q</FieldLabel>
+            <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
+                <NumericEdit Min="0" Step="0.05M" @bind-Value="@Parameters.Q" />
+            </FieldBody>
+        </Field>
+    </CardBody>
+</Card>

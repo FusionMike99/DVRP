@@ -1,0 +1,25 @@
+﻿<Card Margin="Margin.Is4.OnY">
+    <CardHeader>
+        <CardTitle>Select Algorithm</CardTitle>
+    </CardHeader>
+    <CardBody>
+        <Tabs SelectedTab="@SelectedTab" SelectedTabChanged="@OnSelectedTabChanged" Justified>
+            <Items>
+                <Tab Name="@(nameof(Algorithm.GeneticAlgorithm))">Genetic Algorithm</Tab>
+                <Tab Name="@(nameof(Algorithm.AntColonyOptimization))">Ant Colony Optimization</Tab>
+                <Tab Name="@(nameof(Algorithm.HybridAlgorithm))">Hybrid Algorithm</Tab>
+            </Items>
+            <Content>
+                <TabPanel Name="@(nameof(Algorithm.GeneticAlgorithm))">
+                    <GAParametersInput />
+                </TabPanel>
+                <TabPanel Name="@(nameof(Algorithm.AntColonyOptimization))">
+                    <ACOParametersInput />
+                </TabPanel>
+                <TabPanel Name="@(nameof(Algorithm.HybridAlgorithm))">
+                    <HybridParametersInput />
+                </TabPanel>
+            </Content>
+        </Tabs>
+    </CardBody>
+</Card>

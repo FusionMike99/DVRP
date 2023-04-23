@@ -1,0 +1,31 @@
+﻿<Card Margin="Margin.Is4.OnY">
+    <CardHeader>
+        <CardTitle>Genetic Algorithm Parameters</CardTitle>
+    </CardHeader>
+    <CardBody>
+        <Field Horizontal>
+            <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Generations</FieldLabel>
+            <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
+                <NumericEdit Min="1" Step="1" @bind-Value="@Parameters.MaxGenerations" />
+            </FieldBody>
+        </Field>
+        <Field Horizontal>
+            <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Population Size</FieldLabel>
+            <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
+                <NumericEdit Min="1" Step="1" @bind-Value="@Parameters.PopulationSize" />
+            </FieldBody>
+        </Field>
+        <Field Horizontal>
+            <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Tournament Size</FieldLabel>
+            <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
+                <NumericEdit Min="1" Step="1" @bind-Value="@Parameters.TournamentSize" />
+            </FieldBody>
+        </Field>
+        <Field Horizontal>
+            <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Mutation Rate</FieldLabel>
+            <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
+                <NumericEdit Min="0" Step="0.05M" @bind-Value="@Parameters.MutationRate" />
+            </FieldBody>
+        </Field>
+    </CardBody>
+</Card>
