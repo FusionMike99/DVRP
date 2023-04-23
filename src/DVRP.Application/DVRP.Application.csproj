@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\DVRP.Domain\DVRP.Domain.csproj" />
+    <ProjectReference Include="..\DVRP.Domain\DVRP.Domain.csproj" />
   </ItemGroup>
 
 </Project>
