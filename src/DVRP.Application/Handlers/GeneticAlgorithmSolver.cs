@@ -23,32 +23,7 @@ public class GeneticAlgorithmSolver : IDvrpSolver
         }
 
         _model = model;
-
-        // Initialization
-        var population = InitializePopulation(model, gaParameters.PopulationSize);
-
-        // Main loop
-        for (int generation = 0; generation < gaParameters.MaxGenerations; generation++)
-        {
-            // Selection
-            var selectedParents = SelectParents(population, gaParameters);
-
-            // Crossover
-            var offspring = Crossover(selectedParents, gaParameters.CrossoverRate);
-
-            // Mutation
-            Mutate(offspring, gaParameters.MutationRate);
-
-            // Elitism
-            var newPopulation = Elitism(population, offspring);
-
-            population = newPopulation;
-        }
-
-        // Find the best solution in the final population
-        var bestSolution = population.OrderBy(s => s.TotalDistance).First();
-
-        return bestSolution;
+        return RunGeneticAlgorithm(gaParameters);
     }
 
     private static bool IsProblemSolvable(DvrpModel model)
@@ -64,45 +39,50 @@ public class GeneticAlgorithmSolver : IDvrpSolver
         return totalDemand <= totalVehicleCapacity;
     }
 
-
-    // Implement the GA methods (Initialization, Selection, Crossover, Mutation, and Elitism) here.
-    private static List<DvrpSolution> InitializePopulation(DvrpModel model, int populationSize)
+    private DvrpSolution RunGeneticAlgorithm(GeneticAlgorithmParameters parameters)
     {
-        var population = new List<DvrpSolution>(populationSize);
-
-        for (int i = 0; i < populationSize; i++)
+        var population = InitializePopulation(parameters.PopulationSize);
+        for (int generation = 0; generation < parameters.MaxGenerations; generation++)
         {
-            var solution = GenerateRandomSolution(model);
-            population.Add(solution);
+            population = EvolvePopulation(population, parameters);
         }
 
+        return GetBestSolution(population);
+    }
+
+    private List<DvrpSolution> InitializePopulation(int populationSize)
+    {
+        var population = new List<DvrpSolution>(populationSize);
+        for (int i = 0; i < populationSize; i++)
+        {
+            var solution = GenerateRandomSolution();
+            population.Add(solution);
+        }
         return population;
     }
 
-    private static DvrpSolution GenerateRandomSolution(DvrpModel model)
+    private DvrpSolution GenerateRandomSolution()
     {
         var routes = new List<VehicleRoute>();
-        var remainingCustomers = new List<Customer>(model.Customers);
+        var remainingCustomers = new List<Customer>(_model.Customers);
         double totalDistance = 0;
 
         ShuffleList(remainingCustomers); // Shuffle the customers list
 
-        foreach (var vehicle in model.Vehicles)
+        foreach (var vehicle in _model.Vehicles)
         {
-            var depot = model.Depots.First(d => d.Id == vehicle.DepotId);
+            var depot = _model.Depots.First(d => d.Id == vehicle.DepotId);
             var route = new VehicleRoute { VehicleId = vehicle.Id, LocationIds = new List<int>() };
             double remainingCapacity = vehicle.Capacity;
-            double currentTime = depot.StartTime;
 
             for (int i = remainingCustomers.Count - 1; i >= 0; i--)
             {
                 var customer = remainingCustomers[i];
 
-                if (customer.Demand <= remainingCapacity && currentTime + customer.ServiceTime <= customer.TimeWindowEnd)
+                if (customer.Demand <= remainingCapacity)
                 {
                     route.LocationIds.Add(customer.Id);
                     remainingCapacity -= customer.Demand;
-                    currentTime += customer.ServiceTime;
                     totalDistance += CalculateDistance(depot, customer);
                     remainingCustomers.RemoveAt(i);
                 }
@@ -130,6 +110,14 @@ public class GeneticAlgorithmSolver : IDvrpSolver
         double dx = location1.X - location2.X;
         double dy = location1.Y - location2.Y;
         return Math.Sqrt(dx * dx + dy * dy);
+    }
+
+    private List<DvrpSolution> EvolvePopulation(List<DvrpSolution> population, GeneticAlgorithmParameters parameters)
+    {
+        var selectedParents = SelectParents(population, parameters);
+        var offspring = PerformCrossover(selectedParents, parameters.CrossoverRate);
+        MutateOffspring(offspring, parameters.MutationRate);
+        return ApplyElitism(population, offspring);
     }
 
     private static List<DvrpSolution> SelectParents(List<DvrpSolution> population, GeneticAlgorithmParameters parameters)
@@ -186,7 +174,7 @@ public class GeneticAlgorithmSolver : IDvrpSolver
         return selectedParents;
     }
 
-    private List<DvrpSolution> Crossover(List<DvrpSolution> parents, double crossoverRate)
+    private List<DvrpSolution> PerformCrossover(List<DvrpSolution> parents, double crossoverRate)
     {
         var offspring = new List<DvrpSolution>(parents.Count);
 
@@ -276,7 +264,7 @@ public class GeneticAlgorithmSolver : IDvrpSolver
         return distance;
     }
 
-    private void Mutate(List<DvrpSolution> offspring, double mutationRate)
+    private void MutateOffspring(List<DvrpSolution> offspring, double mutationRate)
     {
         foreach (var solution in offspring)
         {
@@ -313,7 +301,7 @@ public class GeneticAlgorithmSolver : IDvrpSolver
         return totalDistance;
     }
 
-    private static List<DvrpSolution> Elitism(List<DvrpSolution> population, List<DvrpSolution> offspring)
+    private static List<DvrpSolution> ApplyElitism(List<DvrpSolution> population, List<DvrpSolution> offspring)
     {
         // Determine the number of elite individuals to preserve
         int eliteCount = (int)(population.Count * 0.1); // Preserve the top 10% of the population; adjust as needed
@@ -331,5 +319,9 @@ public class GeneticAlgorithmSolver : IDvrpSolver
 
         return nextGeneration;
     }
-}
 
+    private DvrpSolution GetBestSolution(List<DvrpSolution> population)
+    {
+        return population.OrderBy(s => s.TotalDistance).First();
+    }
+}

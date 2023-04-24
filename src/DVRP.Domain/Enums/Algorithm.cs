@@ -1,10 +1,9 @@
-﻿namespace DVRP.Domain.Enums
+﻿namespace DVRP.Domain.Enums;
+
+[Flags]
+public enum Algorithm : byte
 {
-    [Flags]
-    public enum Algorithm : byte
-    {
-        GeneticAlgorithm = 1,
-        AntColonyOptimization = 2,
-        HybridAlgorithm = GeneticAlgorithm | AntColonyOptimization
-    }
+    GeneticAlgorithm = 1,
+    AntColonyOptimization = 2,
+    HybridAlgorithm = GeneticAlgorithm | AntColonyOptimization
 }

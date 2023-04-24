@@ -4,8 +4,8 @@
           Editable Responsive ShowPager CommandMode="DataGridCommandMode.ButtonRow">
     <DataGridColumns>
         <DataGridNumericColumn Field="@nameof(Depot.Id)" Caption="Id" Sortable="false" />
-        <DataGridNumericColumn Field="@nameof(Depot.StartTime)" Caption="Start Time" Editable />
-        <DataGridNumericColumn Field="@nameof(Depot.EndTime)" Caption="End Time" Editable />
+        <DataGridNumericColumn Field="@nameof(Depot.X)" Caption="Start Time" Editable />
+        <DataGridNumericColumn Field="@nameof(Depot.Y)" Caption="Start Time" Editable />
     </DataGridColumns>
     <ButtonRowTemplate>
         <Button Color="Color.Success" Clicked="context.NewCommand.Clicked">New</Button>

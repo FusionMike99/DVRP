@@ -30,10 +30,7 @@ public static class DvrpInstanceGenerator
                 Id = i + 1,
                 X = Random.Shared.NextDouble() * maxX,
                 Y = Random.Shared.NextDouble() * maxY,
-                Demand = Random.Shared.NextDouble() * maxDemand,
-                ServiceTime = Random.Shared.NextDouble() * maxServiceTime,
-                TimeWindowStart = Random.Shared.NextDouble() * maxServiceTime,
-                TimeWindowEnd = Random.Shared.NextDouble() * maxServiceTime + maxServiceTime
+                Demand = Random.Shared.NextDouble() * maxDemand
             });
         }
 
@@ -50,9 +47,7 @@ public static class DvrpInstanceGenerator
             {
                 Id = i + 1,
                 X = Random.Shared.NextDouble() * maxX,
-                Y = Random.Shared.NextDouble() * maxY,
-                StartTime = 0,
-                EndTime = 24
+                Y = Random.Shared.NextDouble() * maxY
             });
         }
 

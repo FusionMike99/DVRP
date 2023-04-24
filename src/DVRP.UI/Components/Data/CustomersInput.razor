@@ -6,9 +6,7 @@
         <DataGridNumericColumn Field="@nameof(Customer.Id)" Caption="Id" Sortable="false" />
         <DataGridNumericColumn Field="@nameof(Customer.X)" Caption="Latitude" Editable />
         <DataGridNumericColumn Field="@nameof(Customer.Y)" Caption="Longitude" Editable />
-        <DataGridNumericColumn Field="@nameof(Customer.ServiceTime)" Caption="Service Time" Editable />
-        <DataGridNumericColumn Field="@nameof(Customer.TimeWindowStart)" Caption="Time Window Start" Editable />
-        <DataGridNumericColumn Field="@nameof(Customer.TimeWindowEnd)" Caption="Time Window End" Editable />
+        <DataGridNumericColumn Field="@nameof(Customer.Demand)" Caption="Demand" Editable />
     </DataGridColumns>
     <ButtonRowTemplate>
         <Button Color="Color.Success" Clicked="context.NewCommand.Clicked">New</Button>
