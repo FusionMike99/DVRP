@@ -254,7 +254,8 @@ public class GeneticAlgorithmSolver : IDvrpSolver
     private double CalculateRouteDistance(VehicleRoute route, int vehicleId)
     {
         double distance = 0;
-        var depot = _model.Depots.First(d => d.Id == vehicleId);
+        var vehicle = _model.Vehicles.First(v => v.Id == vehicleId);
+        var depot = _model.Depots.First(d => d.Id == vehicle.DepotId);
 
         if (route.LocationIds.Count > 0)
         {
