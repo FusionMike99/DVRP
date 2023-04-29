@@ -58,40 +58,51 @@ public class GeneticAlgorithmSolver : IDvrpSolver
             var solution = GenerateRandomSolution();
             population.Add(solution);
         }
+        
         return population;
     }
 
     private DvrpSolution GenerateRandomSolution()
     {
         var routes = new List<VehicleRoute>();
-        var remainingCustomers = new List<Customer>(_model.Customers);
-        double totalDistance = 0;
+        var copyCustomers = new List<Customer>(_model.Customers);
 
-        ShuffleList(remainingCustomers); // Shuffle the customers list
+        ShuffleList(copyCustomers); // Shuffle the customers list
 
-        foreach (var vehicle in _model.Vehicles)
+        var remainingCustomers = new Queue<Customer>(copyCustomers);
+
+        while (remainingCustomers.Count > 0)
         {
-            var depot = _model.Depots.First(d => d.Id == vehicle.DepotId);
-            var route = new VehicleRoute { VehicleId = vehicle.Id, LocationIds = new List<int>() };
-            double remainingCapacity = vehicle.Capacity;
-
-            for (int i = remainingCustomers.Count - 1; i >= 0; i--)
+            foreach (var vehicle in _model.Vehicles)
             {
-                var customer = remainingCustomers[i];
+                if (remainingCustomers.Count <= 0)
+                    break;
 
-                if (customer.Demand <= remainingCapacity)
+                var depot = _model.Depots.First(d => d.Id == vehicle.DepotId);
+                Location currentLocation = depot with { };
+                var route = new VehicleRoute { VehicleId = vehicle.Id, LocationIds = new List<int>() };
+                double remainingCapacity = vehicle.Capacity;
+
+                while (remainingCustomers.Count > 0)
                 {
+                    var customer = remainingCustomers.Peek();
+                    if (customer.Demand > remainingCapacity)
+                    {
+                        break;
+                    }
+                    
+                    remainingCustomers.Dequeue();
                     route.LocationIds.Add(customer.Id);
                     remainingCapacity -= customer.Demand;
-                    totalDistance += CalculateDistance(depot, customer);
-                    remainingCustomers.RemoveAt(i);
+                    route.Distance += CalculateDistance(currentLocation, customer);
+                    currentLocation = customer;
                 }
-            }
 
-            routes.Add(route);
+                routes.Add(route);
+            }
         }
 
-        return new DvrpSolution { Routes = routes, TotalDistance = totalDistance };
+        return new DvrpSolution { Routes = routes };
     }
 
     private static void ShuffleList<T>(List<T> list)
@@ -133,25 +144,47 @@ public class GeneticAlgorithmSolver : IDvrpSolver
     private static List<DvrpSolution> RouletteWheelSelection(List<DvrpSolution> population)
     {
         var selectedParents = new List<DvrpSolution>(population.Count);
-        var fitnessSum = population.Sum(solution => 1 / solution.TotalDistance);
-        var probabilities = population.Select(solution => (1 / solution.TotalDistance) / fitnessSum).ToList();
+
+        var fitnesses = population.Select(p => 1 / p.TotalDistance);
+        double fitnessSum = fitnesses.Sum();
+        var normalizedFitnesses = fitnesses.Select(f => f / fitnessSum).ToList();
+        var cumulativeProbabilities = CalculateCumulativeProbabilities(normalizedFitnesses);
 
         for (int i = 0; i < population.Count; i++)
         {
             double randomValue = Random.Shared.NextDouble();
-            double cumulativeProbability = 0;
-            for (int j = 0; j < population.Count; j++)
-            {
-                cumulativeProbability += probabilities[j];
-                if (randomValue <= cumulativeProbability || j == population.Count - 1)
-                {
-                    selectedParents.Add(population[j]);
-                    break;
-                }
-            }
+            int selectedIndex = FindIndexByProbability(cumulativeProbabilities, randomValue);
+            selectedParents.Add(population[selectedIndex]);
         }
 
         return selectedParents;
+    }
+
+    private static List<double> CalculateCumulativeProbabilities(List<double> probabilities)
+    {
+        var cumulativeProbabilities = new List<double>(probabilities.Count);
+        double cumulativeProbability = 0;
+
+        foreach (var probability in probabilities)
+        {
+            cumulativeProbability += probability;
+            cumulativeProbabilities.Add(cumulativeProbability);
+        }
+
+        return cumulativeProbabilities;
+    }
+
+    private static int FindIndexByProbability(List<double> cumulativeProbabilities, double randomValue)
+    {
+        for (int i = 0; i < cumulativeProbabilities.Count; i++)
+        {
+            if (randomValue <= cumulativeProbabilities[i])
+            {
+                return i;
+            }
+        }
+
+        return cumulativeProbabilities.Count - 1;
     }
 
     private static List<DvrpSolution> TournamentSelection(List<DvrpSolution> population, int tournamentSize = 2)
@@ -206,7 +239,6 @@ public class GeneticAlgorithmSolver : IDvrpSolver
     private DvrpSolution OrderedCrossover(DvrpSolution parent1, DvrpSolution parent2)
     {
         var childRoutes = new List<VehicleRoute>(parent1.Routes.Count);
-        double totalDistance = 0;
 
         for (int i = 0; i < parent1.Routes.Count; i++)
         {
@@ -232,11 +264,11 @@ public class GeneticAlgorithmSolver : IDvrpSolver
                 }
             }
 
-            totalDistance += CalculateRouteDistance(childRoute, parent1.Routes[i].VehicleId);
+            childRoute.Distance += CalculateRouteDistance(childRoute, parent1.Routes[i].VehicleId);
             childRoutes.Add(childRoute);
         }
 
-        return new DvrpSolution { Routes = childRoutes, TotalDistance = totalDistance };
+        return new DvrpSolution { Routes = childRoutes };
     }
 
     private double CalculateRouteDistance(VehicleRoute route, int vehicleId)
@@ -280,25 +312,9 @@ public class GeneticAlgorithmSolver : IDvrpSolver
 
                     // Swap the customers at the selected indices
                     (route.LocationIds[index2], route.LocationIds[index1]) = (route.LocationIds[index1], route.LocationIds[index2]);
-
-                    // Recalculate the total distance for the mutated solution
-                    solution.TotalDistance = CalculateSolutionTotalDistance(solution);
                 }
             }
         }
-    }
-
-    private double CalculateSolutionTotalDistance(DvrpSolution solution)
-    {
-        double totalDistance = 0;
-
-        for (int i = 0; i < solution.Routes.Count; i++)
-        {
-            int vehicleId = solution.Routes[i].VehicleId;
-            totalDistance += CalculateRouteDistance(solution.Routes[i], vehicleId);
-        }
-
-        return totalDistance;
     }
 
     private static List<DvrpSolution> ApplyElitism(List<DvrpSolution> population, List<DvrpSolution> offspring)

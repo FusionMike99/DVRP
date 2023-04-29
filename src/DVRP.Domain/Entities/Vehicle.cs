@@ -1,6 +1,6 @@
 ﻿namespace DVRP.Domain.Entities;
 
-public class Vehicle
+public record Vehicle
 {
     public int Id { get; set; }
     public double Capacity { get; set; }

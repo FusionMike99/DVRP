@@ -1,5 +1,5 @@
 ﻿namespace DVRP.Domain.Entities;
 
-public class Depot : Location
+public record Depot : Location
 {
 }

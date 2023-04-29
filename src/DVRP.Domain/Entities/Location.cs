@@ -1,6 +1,6 @@
 ﻿namespace DVRP.Domain.Entities;
 
-public class Location
+public record Location
 {
     public int Id { get; set; }
     public double X { get; set; }

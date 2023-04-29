@@ -108,8 +108,7 @@ public class Ant
         // Create the DvrpSolution instance
         DvrpSolution antSolution = new()
         {
-            Routes = vehicleRoutes,
-            TotalDistance = totalDistance
+            Routes = vehicleRoutes
         };
 
         return antSolution;
