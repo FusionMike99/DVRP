@@ -6,338 +6,312 @@ namespace DVRP.Application.Handlers;
 
 public class GeneticAlgorithmSolver : IDvrpSolver
 {
-    private DvrpModel _model = null!;
-
     public Algorithm Algorithm => Algorithm.GeneticAlgorithm;
 
     public DvrpSolution Solve(DvrpModel model, DvrpSolverParameters parameters)
     {
-        if (parameters is not GeneticAlgorithmParameters gaParameters)
+        if(parameters is not GeneticAlgorithmParameters gaParameters)
         {
-            throw new ArgumentException("Invalid solver parameters for Genetic Algorithm.");
+            throw new ArgumentException("Not suitable parameter", nameof(parameters));
         }
 
-        if (!IsProblemSolvable(model))
+        // 1. Initialize the population
+        List<DvrpSolution> population = InitializePopulation(model, gaParameters);
+
+        // 2. Evaluate the initial population
+        EvaluatePopulation(model, population);
+
+        // 3. Main loop
+        for (int generation = 0; generation < gaParameters.MaxGenerations; generation++)
         {
-            return new DvrpSolution();
+            // 3.1 Selection
+            var selectedParents = SelectParents(population, gaParameters);
+
+            // 3.2 Crossover
+            var offspring = PerformCrossover(model, selectedParents, gaParameters);
+
+            // 3.3 Mutation
+            PerformMutation(model, offspring, gaParameters);
+
+            // 3.4 Replacement
+            ReplacePopulation(population, offspring);
+
+            // 3.5 Evaluate the population
+            EvaluatePopulation(model, population);
         }
 
-        _model = model;
-        return RunGeneticAlgorithm(gaParameters);
+        // 4. Get the best solution from the final population
+        var bestSolution = GetBestSolution(population);
+        return bestSolution;
     }
 
-    private static bool IsProblemSolvable(DvrpModel model)
+    private static List<DvrpSolution> InitializePopulation(DvrpModel model, GeneticAlgorithmParameters gaParameters)
     {
-        if (model.Customers.Count == 0 || model.Vehicles.Count == 0)
+        List<DvrpSolution> population = new(gaParameters.PopulationSize);
+
+        for (int i = 0; i < gaParameters.PopulationSize; i++)
         {
-            return false;
-        }
+            DvrpSolution solution = new();
+            List<Customer> remainingCustomers = new(model.Customers.OrderBy(c => Random.Shared.Next()));
 
-        double totalDemand = model.Customers.Sum(customer => customer.Demand);
-        double totalVehicleCapacity = model.Vehicles.Sum(vehicle => vehicle.Capacity);
+            while (remainingCustomers.Count > 0)
+            {
+                var customerAssigned = false;
 
-        return totalDemand <= totalVehicleCapacity;
-    }
+                foreach (Vehicle vehicle in model.Vehicles)
+                {
+                    VehicleRoute route = new() { Vehicle = vehicle with { } };
+                    double remainingCapacity = vehicle.Capacity;
 
-    private DvrpSolution RunGeneticAlgorithm(GeneticAlgorithmParameters parameters)
-    {
-        var population = InitializePopulation(parameters.PopulationSize);
-        for (int generation = 0; generation < parameters.MaxGenerations; generation++)
-        {
-            population = EvolvePopulation(population, parameters);
-        }
+                    // Start at the vehicle's depot
+                    Depot startDepot = model.Depots.First(depot => depot.Id == vehicle.DepotId) with { };
+                    route.Locations.Add(startDepot);
 
-        return GetBestSolution(population);
-    }
+                    // Assign customers to the vehicle while considering capacity constraints
+                    for (int j = 0; j < remainingCustomers.Count; j++)
+                    {
+                        Customer customer = remainingCustomers[j] with { };
+                        if (customer.Demand > remainingCapacity)
+                            continue;
 
-    private List<DvrpSolution> InitializePopulation(int populationSize)
-    {
-        var population = new List<DvrpSolution>(populationSize);
-        for (int i = 0; i < populationSize; i++)
-        {
-            var solution = GenerateRandomSolution();
+                        route.Locations.Add(customer);
+                        remainingCapacity -= customer.Demand;
+                        remainingCustomers.RemoveAt(j);
+                        j--; // Decrement the index to account for the removed customer
+                        customerAssigned = true;
+                    }
+
+                    // Return to the depot at the end of the route
+                    route.Locations.Add(startDepot);
+
+                    // Add the route to the solution
+                    solution.Routes.Add(route);
+                }
+
+                if (!customerAssigned) break;
+            }
+
+            // Add the solution to the population
             population.Add(solution);
         }
-        
+
         return population;
     }
 
-    private DvrpSolution GenerateRandomSolution()
+    private static void EvaluatePopulation(DvrpModel model, List<DvrpSolution> population)
     {
-        var routes = new List<VehicleRoute>();
-        var copyCustomers = new List<Customer>(_model.Customers);
-
-        ShuffleList(copyCustomers); // Shuffle the customers list
-
-        var remainingCustomers = new Queue<Customer>(copyCustomers);
-
-        while (remainingCustomers.Count > 0)
+        foreach (DvrpSolution solution in population)
         {
-            foreach (var vehicle in _model.Vehicles)
-            {
-                if (remainingCustomers.Count <= 0)
-                    break;
-
-                var depot = _model.Depots.First(d => d.Id == vehicle.DepotId);
-                Location currentLocation = depot with { };
-                var route = new VehicleRoute { VehicleId = vehicle.Id, LocationIds = new List<int>() };
-                double remainingCapacity = vehicle.Capacity;
-
-                while (remainingCustomers.Count > 0)
-                {
-                    var customer = remainingCustomers.Peek();
-                    if (customer.Demand > remainingCapacity)
-                    {
-                        break;
-                    }
-                    
-                    remainingCustomers.Dequeue();
-                    route.LocationIds.Add(customer.Id);
-                    remainingCapacity -= customer.Demand;
-                    route.Distance += CalculateDistance(currentLocation, customer);
-                    currentLocation = customer;
-                }
-
-                routes.Add(route);
-            }
-        }
-
-        return new DvrpSolution { Routes = routes };
-    }
-
-    private static void ShuffleList<T>(List<T> list)
-    {
-        int n = list.Count;
-        while (n > 1)
-        {
-            n--;
-            int k = Random.Shared.Next(n + 1);
-            (list[n], list[k]) = (list[k], list[n]);
+            solution.CalculateFitness(model.Depots.Count);
         }
     }
 
-    private static double CalculateDistance(Location location1, Location location2)
+    private static List<DvrpSolution> SelectParents(List<DvrpSolution> population, GeneticAlgorithmParameters gaParameters)
     {
-        double dx = location1.X - location2.X;
-        double dy = location1.Y - location2.Y;
-        return Math.Sqrt(dx * dx + dy * dy);
-    }
-
-    private List<DvrpSolution> EvolvePopulation(List<DvrpSolution> population, GeneticAlgorithmParameters parameters)
-    {
-        var selectedParents = SelectParents(population, parameters);
-        var offspring = PerformCrossover(selectedParents, parameters.CrossoverRate);
-        MutateOffspring(offspring, parameters.MutationRate);
-        return ApplyElitism(population, offspring);
-    }
-
-    private static List<DvrpSolution> SelectParents(List<DvrpSolution> population, GeneticAlgorithmParameters parameters)
-    {
-        return parameters.SelectionMethod switch
+        List<DvrpSolution> parents = new(population.Count);
+        Func<DvrpSolution> selectionMethod = gaParameters.SelectionMethod switch
         {
-            GeneticAlgorithmSelectionMethod.RouletteWheel => RouletteWheelSelection(population),
-            GeneticAlgorithmSelectionMethod.Tournament => TournamentSelection(population, parameters.TournamentSize),
-            _ => throw new ArgumentException("Invalid selection method."),
+            GeneticAlgorithmSelectionMethod.RouletteWheel => () => RouletteWheelSelection(population),
+            GeneticAlgorithmSelectionMethod.Tournament => () => TournamentSelection(population, gaParameters.TournamentSize),
+            _ => () => RouletteWheelSelection(population)
         };
-    }
-
-    private static List<DvrpSolution> RouletteWheelSelection(List<DvrpSolution> population)
-    {
-        var selectedParents = new List<DvrpSolution>(population.Count);
-
-        var fitnesses = population.Select(p => 1 / p.TotalDistance);
-        double fitnessSum = fitnesses.Sum();
-        var normalizedFitnesses = fitnesses.Select(f => f / fitnessSum).ToList();
-        var cumulativeProbabilities = CalculateCumulativeProbabilities(normalizedFitnesses);
 
         for (int i = 0; i < population.Count; i++)
         {
-            double randomValue = Random.Shared.NextDouble();
-            int selectedIndex = FindIndexByProbability(cumulativeProbabilities, randomValue);
-            selectedParents.Add(population[selectedIndex]);
+            parents.Add(selectionMethod());
         }
 
-        return selectedParents;
+        return parents;
     }
 
-    private static List<double> CalculateCumulativeProbabilities(List<double> probabilities)
+    private static DvrpSolution RouletteWheelSelection(List<DvrpSolution> population)
     {
-        var cumulativeProbabilities = new List<double>(probabilities.Count);
-        double cumulativeProbability = 0;
+        double totalFitness = population.Sum(solution => solution.Fitness);
+        double randomValue = Random.Shared.NextDouble() * totalFitness;
+        double accumulatedFitness = 0;
 
-        foreach (var probability in probabilities)
+        foreach (DvrpSolution solution in population)
         {
-            cumulativeProbability += probability;
-            cumulativeProbabilities.Add(cumulativeProbability);
-        }
-
-        return cumulativeProbabilities;
-    }
-
-    private static int FindIndexByProbability(List<double> cumulativeProbabilities, double randomValue)
-    {
-        for (int i = 0; i < cumulativeProbabilities.Count; i++)
-        {
-            if (randomValue <= cumulativeProbabilities[i])
+            accumulatedFitness += solution.Fitness;
+            if (accumulatedFitness >= randomValue)
             {
-                return i;
+                return solution;
             }
         }
 
-        return cumulativeProbabilities.Count - 1;
+        return population[^1]; // Return the last solution as a fallback
     }
 
-    private static List<DvrpSolution> TournamentSelection(List<DvrpSolution> population, int tournamentSize = 2)
+    private static DvrpSolution TournamentSelection(List<DvrpSolution> population, int tournamentSize)
     {
-        var selectedParents = new List<DvrpSolution>(population.Count);
-
-        for (int i = 0; i < population.Count; i++)
+        List<DvrpSolution> selectedSolutions = new(tournamentSize);
+        for (int i = 0; i < tournamentSize; i++)
         {
-            var competitors = new List<DvrpSolution>(tournamentSize);
-            for (int j = 0; j < tournamentSize; j++)
-            {
-                int randomIndex = Random.Shared.Next(population.Count);
-                competitors.Add(population[randomIndex]);
-            }
-
-            var bestCompetitor = competitors.OrderBy(solution => solution.TotalDistance).First();
-            selectedParents.Add(bestCompetitor);
+            int randomIndex = Random.Shared.Next(population.Count);
+            selectedSolutions.Add(population[randomIndex]);
         }
 
-        return selectedParents;
+        return selectedSolutions.OrderBy(solution => solution.Fitness).First();
     }
 
-    private List<DvrpSolution> PerformCrossover(List<DvrpSolution> parents, double crossoverRate)
+    private static List<DvrpSolution> PerformCrossover(DvrpModel model, List<DvrpSolution> selectedParents, GeneticAlgorithmParameters gaParameters)
     {
-        var offspring = new List<DvrpSolution>(parents.Count);
+        List<DvrpSolution> offspringPopulation = new(selectedParents.Count);
 
-        for (int i = 0; i < parents.Count; i += 2)
+        for (int i = 0; i < selectedParents.Count; i += 2)
         {
-            if (i + 1 >= parents.Count)
-            {
-                break;
-            }
+            DvrpSolution parent1 = selectedParents[i];
+            DvrpSolution parent2 = selectedParents[i + 1];
 
-            if (Random.Shared.NextDouble() < crossoverRate)
+            if (Random.Shared.NextDouble() < gaParameters.CrossoverRate)
             {
-                var child1 = OrderedCrossover(parents[i], parents[i + 1]);
-                var child2 = OrderedCrossover(parents[i + 1], parents[i]);
-
-                offspring.Add(child1);
-                offspring.Add(child2);
+                (DvrpSolution offspring1, DvrpSolution offspring2) = OrderCrossover(model, parent1, parent2);
+                offspringPopulation.Add(offspring1);
+                offspringPopulation.Add(offspring2);
             }
             else
             {
-                offspring.Add(parents[i]);
-                offspring.Add(parents[i + 1]);
+                offspringPopulation.Add(parent1);
+                offspringPopulation.Add(parent2);
             }
         }
 
-        return offspring;
+        return offspringPopulation;
     }
 
-    private DvrpSolution OrderedCrossover(DvrpSolution parent1, DvrpSolution parent2)
+    private static (DvrpSolution, DvrpSolution) OrderCrossover(DvrpModel model, DvrpSolution parent1, DvrpSolution parent2)
     {
-        var childRoutes = new List<VehicleRoute>(parent1.Routes.Count);
+        DvrpSolution offspring1 = new();
+        DvrpSolution offspring2 = new();
 
-        for (int i = 0; i < parent1.Routes.Count; i++)
+        int numVehicles = model.Vehicles.Count;
+        for (int vehicleIndex = 0; vehicleIndex < numVehicles; vehicleIndex++)
         {
-            var parent1Route = parent1.Routes[i].LocationIds;
-            var parent2Route = parent2.Routes[i].LocationIds;
+            Vehicle vehicle = model.Vehicles[vehicleIndex];
+            VehicleRoute parent1Route = parent1.Routes[vehicleIndex];
+            VehicleRoute parent2Route = parent2.Routes[vehicleIndex];
 
-            int crossoverStart = Random.Shared.Next(parent1Route.Count);
-            int crossoverEnd = Random.Shared.Next(crossoverStart, parent1Route.Count);
+            // Remove depots from parent routes.
+            List<Customer> parent1Customers = parent1Route.Locations.OfType<Customer>().ToList();
+            List<Customer> parent2Customers = parent2Route.Locations.OfType<Customer>().ToList();
 
-            var childRoute = new VehicleRoute
+            int customerCount = parent1Customers.Count;
+            int crossoverPoint1 = Random.Shared.Next(customerCount);
+            int crossoverPoint2 = Random.Shared.Next(customerCount);
+
+            int start = Math.Min(crossoverPoint1, crossoverPoint2);
+            int end = Math.Max(crossoverPoint1, crossoverPoint2);
+
+            // Create offspring routes by copying the customer sequences between the crossover points.
+            List<Customer> offspring1Customers = parent1Customers.GetRange(start, end - start);
+            List<Customer> offspring2Customers = parent2Customers.GetRange(start, end - start);
+
+            // Fill in the remaining customer sequences.
+            FillRemainingCustomers(offspring1Customers, parent2Customers);
+            FillRemainingCustomers(offspring2Customers, parent1Customers);
+
+            // Create offspring vehicle routes.
+            VehicleRoute offspring1Route = CreateVehicleRoute(vehicle, model.Depots, offspring1Customers);
+            VehicleRoute offspring2Route = CreateVehicleRoute(vehicle, model.Depots, offspring2Customers);
+
+            // Add the routes to the offspring solutions.
+            offspring1.Routes.Add(offspring1Route);
+            offspring2.Routes.Add(offspring2Route);
+        }
+
+        return (offspring1, offspring2);
+    }
+
+    private static void FillRemainingCustomers(List<Customer> offspringCustomers, List<Customer> parentCustomers)
+    {
+        int insertionIndex = 0;
+        foreach (Customer customer in parentCustomers)
+        {
+            if (!offspringCustomers.Contains(customer))
             {
-                VehicleId = parent1.Routes[i].VehicleId,
-                LocationIds = new List<int>(parent1Route.Count)
-            };
+                offspringCustomers.Insert(insertionIndex++, customer);
+            }
+        }
+    }
 
-            childRoute.LocationIds.AddRange(parent1Route.GetRange(crossoverStart, crossoverEnd - crossoverStart));
+    private static VehicleRoute CreateVehicleRoute(Vehicle vehicle, List<Depot> depots, List<Customer> customers)
+    {
+        Depot startDepot = depots.First(depot => depot.Id == vehicle.DepotId) with { };
+        List<Location> locations = new() { startDepot };
+        locations.AddRange(customers);
+        locations.Add(startDepot);
 
-            foreach (int locationId in parent2Route)
+        return new VehicleRoute
+        {
+            Vehicle = vehicle with { },
+            Locations = locations
+        };
+    }
+
+    private static void PerformMutation(DvrpModel model, List<DvrpSolution> offspring, GeneticAlgorithmParameters gaParameters)
+    {
+        foreach (DvrpSolution solution in offspring)
+        {
+            foreach (VehicleRoute route in solution.Routes)
             {
-                if (!childRoute.LocationIds.Contains(locationId))
+                if (Random.Shared.NextDouble() <= gaParameters.MutationRate)
                 {
-                    childRoute.LocationIds.Add(locationId);
+                    List<Customer> customers = route.Locations.OfType<Customer>().ToList();
+                    int customerCount = customers.Count;
+
+                    int mutationIndex1 = Random.Shared.Next(customerCount);
+                    int mutationIndex2 = Random.Shared.Next(customerCount);
+
+                    int start = Math.Min(mutationIndex1, mutationIndex2);
+                    int end = Math.Max(mutationIndex1, mutationIndex2);
+
+                    customers.Reverse(start, end - start);
+
+                    // Repair the solution if capacity constraints are violated
+                    // ... implement a repair strategy if needed
+
+                    // Reconstruct the mutated route
+                    Depot startDepot = model.Depots.First(depot => depot.Id == route.Vehicle.DepotId) with { };
+                    List<Location> mutatedLocations = new() { startDepot };
+                    mutatedLocations.AddRange(customers);
+                    mutatedLocations.Add(startDepot);
+                    route.Locations = mutatedLocations;
                 }
             }
-
-            childRoute.Distance += CalculateRouteDistance(childRoute, parent1.Routes[i].VehicleId);
-            childRoutes.Add(childRoute);
-        }
-
-        return new DvrpSolution { Routes = childRoutes };
-    }
-
-    private double CalculateRouteDistance(VehicleRoute route, int vehicleId)
-    {
-        double distance = 0;
-        var vehicle = _model.Vehicles.First(v => v.Id == vehicleId);
-        var depot = _model.Depots.First(d => d.Id == vehicle.DepotId);
-
-        if (route.LocationIds.Count > 0)
-        {
-            var firstCustomer = _model.Customers.First(c => c.Id == route.LocationIds[0]);
-            distance += CalculateDistance(depot, firstCustomer);
-
-            for (int i = 0; i < route.LocationIds.Count - 1; i++)
-            {
-                var location1 = _model.Customers.First(c => c.Id == route.LocationIds[i]);
-                var location2 = _model.Customers.First(c => c.Id == route.LocationIds[i + 1]);
-                distance += CalculateDistance(location1, location2);
-            }
-
-            var lastCustomer = _model.Customers.First(c => c.Id == route.LocationIds.Last());
-            distance += CalculateDistance(lastCustomer, depot);
-        }
-
-        return distance;
-    }
-
-    private void MutateOffspring(List<DvrpSolution> offspring, double mutationRate)
-    {
-        foreach (var solution in offspring)
-        {
-            if (Random.Shared.NextDouble() < mutationRate)
-            {
-                int routeIndex = Random.Shared.Next(solution.Routes.Count);
-                var route = solution.Routes[routeIndex];
-
-                if (route.LocationIds.Count >= 2)
-                {
-                    int index1 = Random.Shared.Next(route.LocationIds.Count);
-                    int index2 = Random.Shared.Next(route.LocationIds.Count);
-
-                    // Swap the customers at the selected indices
-                    (route.LocationIds[index2], route.LocationIds[index1]) = (route.LocationIds[index1], route.LocationIds[index2]);
-                }
-            }
         }
     }
 
-    private static List<DvrpSolution> ApplyElitism(List<DvrpSolution> population, List<DvrpSolution> offspring)
+    private static void ReplacePopulation(List<DvrpSolution> population, List<DvrpSolution> offspring)
     {
-        // Determine the number of elite individuals to preserve
-        int eliteCount = (int)(population.Count * 0.1); // Preserve the top 10% of the population; adjust as needed
+        int elitismSize = (int)(population.Count * 0.1); // Select the top 10% of the solutions
 
-        // Sort the population and offspring by total distance (ascending)
-        var sortedPopulation = population.OrderBy(solution => solution.TotalDistance).ToList();
-        var sortedOffspring = offspring.OrderBy(solution => solution.TotalDistance).ToList();
+        // Select the best solutions from the current population
+        List<DvrpSolution> eliteSolutions = population
+            .OrderBy(solution => solution.Fitness)
+            .Take(elitismSize)
+            .ToList();
 
-        // Copy the elite individuals from the population
-        var nextGeneration = sortedPopulation.Take(eliteCount).ToList();
+        // Remove the worst solutions from the offspring
+        offspring = offspring
+            .OrderByDescending(solution => solution.Fitness)
+            .Skip(elitismSize)
+            .ToList();
 
-        // Fill the remaining slots in the next generation with the best offspring
-        int remainingCount = population.Count - eliteCount;
-        nextGeneration.AddRange(sortedOffspring.Take(remainingCount));
+        // Add the elite solutions to the offspring
+        offspring.AddRange(eliteSolutions);
 
-        return nextGeneration;
+        // Replace the current population with the new offspring solutions
+        population.Clear();
+        population.AddRange(offspring);
     }
 
-    private DvrpSolution GetBestSolution(List<DvrpSolution> population)
+    private static DvrpSolution GetBestSolution(List<DvrpSolution> population)
     {
-        return population.OrderBy(s => s.TotalDistance).First();
+        // Find the solution with the lowest fitness value
+        DvrpSolution bestSolution = population
+            .OrderBy(solution => solution.Fitness)
+            .First();
+
+        return bestSolution;
     }
 }

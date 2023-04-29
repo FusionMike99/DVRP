@@ -51,5 +51,5 @@ Console.WriteLine("Total distance: " + solution.TotalDistance);
 Console.WriteLine("Routes:");
 foreach (var route in solution.Routes)
 {
-    Console.WriteLine($"Vehicle {route.VehicleId}: {string.Join(" -> ", route.LocationIds)}; Distance: {route.Distance}");
+    Console.WriteLine($"Vehicle {route.Vehicle.Id}: {string.Join(" -> ", route.Locations.Select(l => l.Id))}; Distance: {route.Distance}");
 }

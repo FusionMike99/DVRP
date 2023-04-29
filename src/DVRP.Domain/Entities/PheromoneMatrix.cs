@@ -45,7 +45,7 @@ public class PheromoneMatrix
 
             foreach (VehicleRoute vehicleRoute in antSolution.Routes)
             {
-                List<int> locationIds = vehicleRoute.LocationIds;
+                List<int> locationIds = vehicleRoute.Locations.Select(l => l.Id).ToList();
                 for (int i = 0; i < locationIds.Count - 1; i++)
                 {
                     int from = locationIds[i];

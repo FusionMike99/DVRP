@@ -20,7 +20,8 @@ public class Ant
         int numberOfLocations = numberOfDepots + numberOfCustomers;
 
         HashSet<int> unvisitedCustomers = new(Enumerable.Range(numberOfDepots, numberOfCustomers)); // All customers
-        List<int> solution = new() { 0 }; // Start at the first depot (index 0)
+        var firstDepot = _model.Depots[0] with { };
+        List<Location> solution = new() { _model.Depots[0] }; // Start at the first depot (index 0)
 
         int currentLocation = 0;
         double currentVehicleCapacity = _model.Vehicles[currentVehicle].Capacity;
@@ -60,7 +61,7 @@ public class Ant
             // Check if the current vehicle can serve the next customer, otherwise return to the depot
             if (_model.Customers[nextCustomer - numberOfDepots].Demand > currentVehicleCapacity)
             {
-                solution.Add(0); // Return to the first depot (index 0)
+                solution.Add(firstDepot with { }); // Return to the first depot (index 0)
                 currentVehicleCapacity = _model.Vehicles[currentVehicle].Capacity; // Reset the vehicle capacity
             }
 
@@ -79,7 +80,7 @@ public class Ant
 
         // Create VehicleRoute instances from the solution
         List<VehicleRoute> vehicleRoutes = new();
-        List<int> currentRoute = new();
+        List<Location> currentRoute = new();
         double currentRouteDistance = 0;
         for (int i = 1; i < solution.Count; i++)
         {
@@ -90,9 +91,8 @@ public class Ant
             {
                 VehicleRoute vehicleRoute = new()
                 {
-                    VehicleId = currentVehicle,
-                    LocationIds = currentRoute,
-                    Distance = currentRouteDistance
+                    Vehicle = _model.Vehicles.First(v => v.Id == currentVehicle),
+                    Locations = currentRoute
                 };
 
                 vehicleRoutes.Add(vehicleRoute);
@@ -101,7 +101,7 @@ public class Ant
             }
             else // Reached a customer
             {
-                currentRouteDistance += _distanceMatrix.GetDistance(solution[i - 1], locationIndex);
+                currentRouteDistance += _distanceMatrix.GetDistance(solution[i - 1].Id, locationIndex);
             }
         }
 
