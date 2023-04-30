@@ -2,7 +2,7 @@
 
 public abstract record Location
 {
-    public int Id { get; set; }
+    public abstract string Id { get; set; }
     public double X { get; set; }
     public double Y { get; set; }
 

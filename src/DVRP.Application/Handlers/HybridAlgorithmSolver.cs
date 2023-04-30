@@ -8,7 +8,7 @@ public class HybridAlgorithmSolver : IDvrpSolver
 {
     public Algorithm Algorithm => Algorithm.HybridAlgorithm;
 
-    public DvrpSolution Solve(DvrpModel model, DvrpSolverParameters parameters)
+    public DvrpSolution Solve(DvrpModel model, DvrpSolverParameters parameters, DvrpSolution? initialSolution = null)
     {
         if (parameters is not HybridAlgorithmParameters hybridParameters)
         {
@@ -21,6 +21,6 @@ public class HybridAlgorithmSolver : IDvrpSolver
         DvrpSolution gaSolution = gaSolver.Solve(model, hybridParameters.GeneticAlgorithmParameters);
         DvrpSolution acoSolution = acoSolver.Solve(model, hybridParameters.AntColonyParameters, gaSolution);
 
-        return gaSolution.TotalDistance <= acoSolution.TotalDistance ? gaSolution : acoSolution;
+        return gaSolution.Fitness <= acoSolution.Fitness ? gaSolution : acoSolution;
     }
 }

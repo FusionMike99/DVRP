@@ -2,45 +2,61 @@
 using DVRP.Application.Handlers;
 using DVRP.Domain.Entities;
 
-DvrpModel model = new DvrpModel
-{
-    Depots = new List<Depot>
+var depots = new List<Depot>
     {
-        new Depot { Id = 1, X = 10, Y = 0 },
-        new Depot { Id = 2, X = -10, Y = 0 },
-    },
+        new Depot { Id = "D1", X = 10, Y = 0 },
+        new Depot { Id = "D2",  X = -10, Y = 0 },
+    };
+
+DvrpModel model = new()
+{
+    Depots = depots,
     Customers = new List<Customer>
     {
-        new Customer { Id = 3, X = 10, Y = 10, Demand = 30 },
-        new Customer { Id = 4, X = 10, Y = -10, Demand = 30 },
-        new Customer { Id = 5, X = -10, Y = -10, Demand = 30 },
-        new Customer { Id = 6, X = -10, Y = 10, Demand = 30 },
-        new Customer { Id = 7, X = 20, Y = 20, Demand = 30 },
-        new Customer { Id = 8, X = 20, Y = -20, Demand = 30 },
-        new Customer { Id = 9, X = -20, Y = -20, Demand = 30 },
-        new Customer { Id = 10, X = -20, Y = 20, Demand = 30 }
+        new Customer { Id = "C1",  X = 10, Y = 10, Demand = 30 },
+        new Customer { Id = "C2",  X = 10, Y = -10, Demand = 30 },
+        new Customer { Id = "C3",  X = -10, Y = -10, Demand = 30 },
+        new Customer { Id = "C4",  X = -10, Y = 10, Demand = 30 },
+        new Customer { Id = "C5",  X = 20, Y = 20, Demand = 30 },
+        new Customer { Id = "C6",  X = 20, Y = -20, Demand = 30 },
+        new Customer { Id = "C7",  X = -20, Y = -20, Demand = 30 },
+        new Customer { Id = "C8",  X = -20, Y = 20, Demand = 30 }
     },
     Vehicles = new List<Vehicle>
     {
-        new Vehicle { Id = 1, Capacity = 60, DepotId = 1 },
-        new Vehicle { Id = 2, Capacity = 60, DepotId = 1 },
-        new Vehicle { Id = 3, Capacity = 60, DepotId = 2 },
-        new Vehicle { Id = 4, Capacity = 60, DepotId = 2 }
+        new Vehicle { Id = "V1", Capacity = 60, DepotId = depots[0].Id },
+        new Vehicle { Id = "V2", Capacity = 60, DepotId = depots[0].Id },
+        new Vehicle { Id = "V3", Capacity = 60, DepotId = depots[1].Id },
+        new Vehicle { Id = "V4", Capacity = 60, DepotId = depots[1].Id }
     }
 };
 
 // Create GeneticAlgorithmSolver instance
-GeneticAlgorithmSolver solver = new GeneticAlgorithmSolver();
+//GeneticAlgorithmSolver solver = new();
+
+//// Define solver parameters
+//GeneticAlgorithmParameters parameters = new()
+//{
+//    PopulationSize = 50,
+//    MutationRate = 0.01,
+//    CrossoverRate = 0.1,
+//    TournamentSize = 2,
+//    MaxGenerations = 200,
+//    SelectionMethod = DVRP.Domain.Enums.GeneticAlgorithmSelectionMethod.RouletteWheel
+//};
+
+// Create AntColonyOptimkizationSolver instance
+AntColonyOptimizationSolver solver = new();
 
 // Define solver parameters
-GeneticAlgorithmParameters parameters = new GeneticAlgorithmParameters
+AntColonyParameters parameters = new()
 {
-    PopulationSize = 50,
-    MutationRate = 0.01,
-    CrossoverRate = 0.9,
-    TournamentSize = 2,
-    MaxGenerations = 200,
-    SelectionMethod = DVRP.Domain.Enums.GeneticAlgorithmSelectionMethod.RouletteWheel
+    MaxIterations = 100,
+    NumberOfAnts = 10,
+    Alpha = 1,
+    Beta = 2,
+    EvaporationRate = 0.1,
+    Q = 10
 };
 
 // Solve the DVRP problem

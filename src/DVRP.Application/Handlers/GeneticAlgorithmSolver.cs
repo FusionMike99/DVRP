@@ -8,7 +8,7 @@ public class GeneticAlgorithmSolver : IDvrpSolver
 {
     public Algorithm Algorithm => Algorithm.GeneticAlgorithm;
 
-    public DvrpSolution Solve(DvrpModel model, DvrpSolverParameters parameters)
+    public DvrpSolution Solve(DvrpModel model, DvrpSolverParameters parameters, DvrpSolution? initialSolution = null)
     {
         if(parameters is not GeneticAlgorithmParameters gaParameters)
         {
@@ -195,7 +195,7 @@ public class GeneticAlgorithmSolver : IDvrpSolver
             List<Customer> parent1Customers = parent1Route.Locations.OfType<Customer>().ToList();
             List<Customer> parent2Customers = parent2Route.Locations.OfType<Customer>().ToList();
 
-            int customerCount = parent1Customers.Count;
+            int customerCount = Math.Min(parent1Customers.Count, parent2Customers.Count);
             int crossoverPoint1 = Random.Shared.Next(customerCount);
             int crossoverPoint2 = Random.Shared.Next(customerCount);
 
