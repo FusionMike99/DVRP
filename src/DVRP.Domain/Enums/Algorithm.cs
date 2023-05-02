@@ -8,4 +8,5 @@ public enum Algorithm : byte
     TabuSearch = 4,
     GaAcoAlgorithm = GeneticAlgorithm | AntColonyOptimization,
     TsAcoAlgorithm = TabuSearch | AntColonyOptimization,
+    GaTsAlgorithm = GeneticAlgorithm | TabuSearch,
 }
