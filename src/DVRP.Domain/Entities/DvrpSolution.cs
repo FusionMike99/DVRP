@@ -1,6 +1,6 @@
 ﻿namespace DVRP.Domain.Entities;
 
-public class DvrpSolution
+public class DvrpSolution : ICloneable
 {
     public List<VehicleRoute> Routes { get; set; } = new();
     public double TotalDistance => Routes.Sum(r => r.Distance);
@@ -24,5 +24,25 @@ public class DvrpSolution
 
         // The fitness value should be minimized, so a higher penalty value will result in a worse fitness
         Fitness = totalDistance + capacityPenalty;
+    }
+
+    public DvrpSolution Clone()
+    {
+        var clone = new DvrpSolution
+        {
+            Fitness = Fitness,
+            Routes = Routes.Select(r => new VehicleRoute
+            {
+                Vehicle = r.Vehicle with { },
+                Locations = r.Locations.Select(l => l with { }).ToList()
+            }).ToList()
+        };
+
+        return clone;
+    }
+
+    object ICloneable.Clone()
+    {
+        return Clone();
     }
 }

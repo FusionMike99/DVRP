@@ -46,17 +46,52 @@ DvrpModel model = new()
 //};
 
 // Create AntColonyOptimkizationSolver instance
-AntColonyOptimizationSolver solver = new();
+//AntColonyOptimizationSolver solver = new();
 
-// Define solver parameters
-AntColonyParameters parameters = new()
+//// Define solver parameters
+//AntColonyParameters parameters = new()
+//{
+//    MaxIterations = 100,
+//    NumberOfAnts = 10,
+//    Alpha = 1,
+//    Beta = 2,
+//    EvaporationRate = 0.1,
+//    Q = 10
+//};
+
+//GaAcoSolver solver = new();
+
+//GaAcoParameters parameters = new()
+//{
+//    GeneticAlgorithmParameters = new()
+//    {
+//        PopulationSize = 50,
+//        MutationRate = 0.01,
+//        CrossoverRate = 0.1,
+//        TournamentSize = 2,
+//        MaxGenerations = 200,
+//        SelectionMethod = DVRP.Domain.Enums.GeneticAlgorithmSelectionMethod.RouletteWheel
+//    },
+//    AntColonyParameters = new()
+//    {
+//        MaxIterations = 100,
+//        NumberOfAnts = 10,
+//        Alpha = 1,
+//        Beta = 2,
+//        EvaporationRate = 0.1,
+//        Q = 10
+//    }
+//};
+
+TabuSearchSolver solver = new();
+
+TabuSearchParameters parameters = new()
 {
-    MaxIterations = 100,
-    NumberOfAnts = 10,
-    Alpha = 1,
-    Beta = 2,
-    EvaporationRate = 0.1,
-    Q = 10
+    MaxIterations = 500,
+    TabuListSize = 10,
+    NeighborhoodSearchSize = 10,
+    DiversificationFactor = 1,
+    IntensificationFactor = 1
 };
 
 // Solve the DVRP problem

@@ -5,5 +5,6 @@ public enum Algorithm : byte
 {
     GeneticAlgorithm = 1,
     AntColonyOptimization = 2,
-    HybridAlgorithm = GeneticAlgorithm | AntColonyOptimization
+    TabuSearch = 4,
+    GaAcoAlgorithm = GeneticAlgorithm | AntColonyOptimization
 }

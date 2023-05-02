@@ -19,14 +19,14 @@ builder.Services.AddBlazorise(options => options.Immediate = true)
 
 builder.Services.AddScoped<IDvrpSolver, GeneticAlgorithmSolver>();
 builder.Services.AddScoped<IDvrpSolver, AntColonyOptimizationSolver>();
-builder.Services.AddScoped<IDvrpSolver, HybridAlgorithmSolver>();
+builder.Services.AddScoped<IDvrpSolver, GaAcoSolver>();
 builder.Services.AddScoped<DvrpSolverSelection>(sp => key =>
 {
     return key switch
     {
         Algorithm.GeneticAlgorithm => sp.GetRequiredService<GeneticAlgorithmSolver>(),
         Algorithm.AntColonyOptimization => sp.GetRequiredService<AntColonyOptimizationSolver>(),
-        Algorithm.HybridAlgorithm => sp.GetRequiredService<HybridAlgorithmSolver>(),
+        Algorithm.GaAcoAlgorithm => sp.GetRequiredService<GaAcoSolver>(),
         _ => throw new KeyNotFoundException()
     };
 });

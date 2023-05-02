@@ -5,10 +5,10 @@ namespace DVRP.UI.Components.Parameters
 {
     public partial class HybridParametersInput
     {
-        private HybridAlgorithmParameters _parameters = new();
+        private GaAcoParameters _parameters = new();
 
         [Parameter]
-        public HybridAlgorithmParameters Parameters
+        public GaAcoParameters Parameters
         {
             get => _parameters;
             set
@@ -22,6 +22,6 @@ namespace DVRP.UI.Components.Parameters
         }
 
         [Parameter]
-        public EventCallback<HybridAlgorithmParameters> ParametersChanged { get; set; }
+        public EventCallback<GaAcoParameters> ParametersChanged { get; set; }
     }
 }

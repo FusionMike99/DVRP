@@ -4,13 +4,13 @@ using DVRP.Domain.Enums;
 
 namespace DVRP.Application.Handlers;
 
-public class HybridAlgorithmSolver : IDvrpSolver
+public class GaAcoSolver : IDvrpSolver
 {
-    public Algorithm Algorithm => Algorithm.HybridAlgorithm;
+    public Algorithm Algorithm => Algorithm.GaAcoAlgorithm;
 
     public DvrpSolution Solve(DvrpModel model, DvrpSolverParameters parameters, DvrpSolution? initialSolution = null)
     {
-        if (parameters is not HybridAlgorithmParameters hybridParameters)
+        if (parameters is not GaAcoParameters hybridParameters)
         {
             throw new ArgumentException("The provided parameters must be of type HybridAlgorithmParameters.");
         }
