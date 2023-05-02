@@ -83,22 +83,45 @@ DvrpModel model = new()
 //    }
 //};
 
-TabuSearchSolver solver = new();
+//TabuSearchSolver solver = new();
 
-TabuSearchParameters parameters = new()
+//TabuSearchParameters parameters = new()
+//{
+//    MaxIterations = 500,
+//    TabuListSize = 10,
+//    NeighborhoodSearchSize = 10,
+//    DiversificationFactor = 1,
+//    IntensificationFactor = 1
+//};
+
+TsAcoSolver solver = new();
+
+TsAcoParameters parameters = new()
 {
-    MaxIterations = 500,
-    TabuListSize = 10,
-    NeighborhoodSearchSize = 10,
-    DiversificationFactor = 1,
-    IntensificationFactor = 1
+    TabuSearchParameters = new()
+    {
+        MaxIterations = 500,
+        TabuListSize = 10,
+        NeighborhoodSearchSize = 10,
+        DiversificationFactor = 1,
+        IntensificationFactor = 1
+    },
+    AntColonyParameters = new()
+    {
+        MaxIterations = 100,
+        NumberOfAnts = 10,
+        Alpha = 1,
+        Beta = 2,
+        EvaporationRate = 0.1,
+        Q = 10
+    }
 };
 
 // Solve the DVRP problem
 DvrpSolution solution = solver.Solve(model, parameters);
 
 // Output the results
-Console.WriteLine("Total distance: " + solution.TotalDistance);
+Console.WriteLine($"Total distance: {solution.TotalDistance}");
 Console.WriteLine("Routes:");
 foreach (var route in solution.Routes)
 {
