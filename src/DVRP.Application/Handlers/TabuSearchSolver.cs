@@ -16,12 +16,12 @@ public class TabuSearchSolver : IDvrpSolver
         }
 
         var tabuList = new List<DvrpSolution>(tabuParameters.TabuListSize);
-        var currentSolution = GenerateInitialSolution(model); // Use a problem-specific construction heuristic
-        var bestSolution = currentSolution.Clone();
+        initialSolution ??= GenerateInitialSolution(model); // Use a problem-specific construction heuristic
+        var bestSolution = initialSolution.Clone();
 
         for (int iteration = 0; iteration < tabuParameters.MaxIterations; iteration++)
         {
-            var neighbors = GenerateNeighbors(currentSolution, model, tabuParameters);
+            var neighbors = GenerateNeighbors(initialSolution, model, tabuParameters);
 
             var bestNeighbor = neighbors
                 .Where(neighbor => !tabuList.Contains(neighbor))
@@ -31,7 +31,7 @@ public class TabuSearchSolver : IDvrpSolver
             if (bestNeighbor == null)
             {
                 // Apply diversification strategy if no suitable neighbor is found
-                currentSolution = ApplyDiversification(currentSolution, model, tabuParameters);
+                initialSolution = ApplyDiversification(initialSolution, model, tabuParameters);
                 continue;
             }
 
@@ -40,18 +40,18 @@ public class TabuSearchSolver : IDvrpSolver
                 bestSolution = bestNeighbor;
             }
 
-            tabuList.Add(currentSolution);
+            tabuList.Add(initialSolution);
             if (tabuList.Count > tabuParameters.TabuListSize)
             {
                 tabuList.RemoveAt(0);
             }
 
-            currentSolution = bestNeighbor;
+            initialSolution = bestNeighbor;
 
             // Apply intensification strategy if the current solution improves
-            if (currentSolution.Fitness < bestSolution.Fitness)
+            if (initialSolution.Fitness < bestSolution.Fitness)
             {
-                currentSolution = ApplyIntensification(currentSolution, model, tabuParameters);
+                initialSolution = ApplyIntensification(initialSolution, model, tabuParameters);
             }
         }
 

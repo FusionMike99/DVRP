@@ -32,18 +32,18 @@ DvrpModel model = new()
 };
 
 // Create GeneticAlgorithmSolver instance
-//GeneticAlgorithmSolver solver = new();
+GeneticAlgorithmSolver solver = new();
 
-//// Define solver parameters
-//GeneticAlgorithmParameters parameters = new()
-//{
-//    PopulationSize = 50,
-//    MutationRate = 0.01,
-//    CrossoverRate = 0.1,
-//    TournamentSize = 2,
-//    MaxGenerations = 200,
-//    SelectionMethod = DVRP.Domain.Enums.GeneticAlgorithmSelectionMethod.RouletteWheel
-//};
+// Define solver parameters
+GeneticAlgorithmParameters parameters = new()
+{
+    PopulationSize = 100,
+    MutationRate = 0.01,
+    CrossoverRate = 0.1,
+    TournamentSize = 3,
+    MaxGenerations = 200,
+    SelectionMethod = DVRP.Domain.Enums.SelectionMethod.TruncationSelection
+};
 
 // Create AntColonyOptimkizationSolver instance
 //AntColonyOptimizationSolver solver = new();
@@ -94,28 +94,28 @@ DvrpModel model = new()
 //    IntensificationFactor = 1
 //};
 
-TsAcoSolver solver = new();
+//TsAcoSolver solver = new();
 
-TsAcoParameters parameters = new()
-{
-    TabuSearchParameters = new()
-    {
-        MaxIterations = 500,
-        TabuListSize = 10,
-        NeighborhoodSearchSize = 10,
-        DiversificationFactor = 1,
-        IntensificationFactor = 1
-    },
-    AntColonyParameters = new()
-    {
-        MaxIterations = 100,
-        NumberOfAnts = 10,
-        Alpha = 1,
-        Beta = 2,
-        EvaporationRate = 0.1,
-        Q = 10
-    }
-};
+//TsAcoParameters parameters = new()
+//{
+//    TabuSearchParameters = new()
+//    {
+//        MaxIterations = 500,
+//        TabuListSize = 10,
+//        NeighborhoodSearchSize = 10,
+//        DiversificationFactor = 1,
+//        IntensificationFactor = 1
+//    },
+//    AntColonyParameters = new()
+//    {
+//        MaxIterations = 100,
+//        NumberOfAnts = 10,
+//        Alpha = 1,
+//        Beta = 2,
+//        EvaporationRate = 0.1,
+//        Q = 10
+//    }
+//};
 
 // Solve the DVRP problem
 DvrpSolution solution = solver.Solve(model, parameters);

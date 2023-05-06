@@ -8,6 +8,6 @@ public class GeneticAlgorithmParameters : DvrpSolverParameters
     public int PopulationSize { get; set; }
     public double MutationRate { get; set; }
     public double CrossoverRate { get; set; }
-    public GeneticAlgorithmSelectionMethod SelectionMethod { get; set; }
+    public SelectionMethod SelectionMethod { get; set; }
     public int TournamentSize { get; set; }
 }
