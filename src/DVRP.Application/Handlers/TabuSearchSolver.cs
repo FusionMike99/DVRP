@@ -1,6 +1,5 @@
 ﻿using DVRP.Application.Abstractions;
 using DVRP.Domain.Entities;
-using DVRP.Domain.Enums;
 
 namespace DVRP.Application.Handlers;
 
@@ -56,93 +55,111 @@ public class TabuSearchSolver : IDvrpSolver
         return bestSolution;
     }
 
-    private static DvrpSolution GenerateInitialSolution(DvrpModel model)
+    public static DvrpSolution GenerateInitialSolution(DvrpModel model)
     {
-        var routes = new List<VehicleRoute>();
-
-        // Calculate the savings matrix
-        var savings = CalculateSavingsMatrix(model.Customers, model.Depots);
-
-        // Sort the savings in decreasing order
-        var sortedSavings = savings.OrderByDescending(s => s.Saving);
-
-        var assignedCustomers = new HashSet<Customer>();
-
-        // Create a copy of the original vehicles list to avoid modifying it
-        var vehicles = model.Vehicles.Select(v => v with { }).ToList();
-
-        foreach (var (Customer1, Customer2, Saving) in sortedSavings)
-        {
-            if (assignedCustomers.Contains(Customer1) || assignedCustomers.Contains(Customer2))
-            {
-                continue;
-            }
-
-            var vehicle = vehicles
-                .Where(v => v.Capacity >= Customer1.Demand + Customer2.Demand)
-                .OrderBy(v => v.Capacity)
-                .FirstOrDefault();
-
-            if (vehicle != null)
-            {
-                var depot = model.Depots.First(d => d.Id == vehicle.DepotId);
-                var route = new VehicleRoute
-                {
-                    Vehicle = vehicle,
-                    Locations = new List<Location> { depot, Customer1, Customer2, depot }
-                };
-                routes.Add(route);
-                assignedCustomers.Add(Customer1);
-                assignedCustomers.Add(Customer2);
-
-                // Reduce the vehicle's capacity
-                vehicle.Capacity -= Customer1.Demand + Customer2.Demand;
-            }
-        }
-
-        // Assign remaining unassigned customers to routes, respecting the capacity constraint
-        foreach (var customer in model.Customers.Except(assignedCustomers))
-        {
-            var closestDepot = model.Depots.OrderBy(d => d.CalculateDistance(customer)).First();
-            var route = routes
-                .Where(r => r.Vehicle.DepotId == closestDepot.Id && r.Locations.OfType<Customer>().Sum(c => c.Demand) + customer.Demand <= r.Vehicle.Capacity)
-                .OrderBy(r => r.Locations.Count)
-                .FirstOrDefault();
-
-            if (route != null)
-            {
-                route.Locations.Insert(route.Locations.Count - 1, customer);
-
-                // Reduce the vehicle's capacity
-                route.Vehicle.Capacity -= customer.Demand;
-            }
-        }
-
+        var savings = CalculateSavings(model);
+        var routes = CreateRoutesFromSavings(model, savings);
         var solution = new DvrpSolution { Routes = routes };
         solution.CalculateFitness(model.Depots.Count);
         return solution;
     }
 
-    private static List<(Customer Customer1, Customer Customer2, double Saving)> CalculateSavingsMatrix(List<Customer> customers, List<Depot> depots)
+    private static List<(Customer, Customer, double)> CalculateSavings(DvrpModel model)
     {
         var savings = new List<(Customer, Customer, double)>();
-
-        for (int i = 0; i < customers.Count; i++)
+        foreach (var c1 in model.Customers)
         {
-            var customer1 = customers[i];
-
-            for (int j = i + 1; j < customers.Count; j++)
+            foreach (var c2 in model.Customers)
             {
-                var customer2 = customers[j];
-                var closestDepot1 = depots.OrderBy(d => d.CalculateDistance(customer1)).First();
-                var closestDepot2 = depots.OrderBy(d => d.CalculateDistance(customer2)).First();
+                if (string.Compare(c1.Id, c2.Id) < 0)
+                {
+                    var closestDepotToC1 = model.Depots.OrderBy(d => d.CalculateDistance(c1)).First();
+                    var closestDepotToC2 = model.Depots.OrderBy(d => d.CalculateDistance(c2)).First();
 
-                double saving = closestDepot1.CalculateDistance(customer1) + closestDepot2.CalculateDistance(customer2) - customer1.CalculateDistance(customer2);
-                savings.Add((customer1, customer2, saving));
+                    double saving = closestDepotToC1.CalculateDistance(c1) +
+                                    closestDepotToC2.CalculateDistance(c2) -
+                                    c1.CalculateDistance(c2);
+                    savings.Add((c1, c2, saving));
+                }
             }
         }
 
-        return savings;
+        return savings.OrderByDescending(s => s.Item3).ToList();
+    }
+
+    private static List<VehicleRoute> CreateRoutesFromSavings(DvrpModel model, List<(Customer, Customer, double)> savings)
+    {
+        var routes = new List<VehicleRoute>();
+        var unassignedCustomers = new HashSet<Customer>(model.Customers);
+
+        foreach (var vehicle in model.Vehicles)
+        {
+            var route = new VehicleRoute { Vehicle = vehicle };
+            double currentCapacity = vehicle.Capacity;
+
+            while (unassignedCustomers.Count > 0)
+            {
+                var saving = savings.FirstOrDefault(s =>
+                    unassignedCustomers.Contains(s.Item1) && unassignedCustomers.Contains(s.Item2) &&
+                    s.Item1.Demand + s.Item2.Demand <= currentCapacity);
+
+                if (saving == default)
+                    break;
+
+                route.Locations.Add(saving.Item1);
+                route.Locations.Add(saving.Item2);
+                currentCapacity -= saving.Item1.Demand + saving.Item2.Demand;
+                unassignedCustomers.Remove(saving.Item1);
+                unassignedCustomers.Remove(saving.Item2);
+
+                savings.RemoveAll(s => s.Item1 == saving.Item1 || s.Item1 == saving.Item2 ||
+                                       s.Item2 == saving.Item1 || s.Item2 == saving.Item2);
+            }
+
+            if (route.Locations.Count > 0)
+            {
+                var closestDepot = model.Depots.OrderBy(d => d.CalculateDistance(route.Locations.First())).First();
+                route.Locations.Insert(0, closestDepot);
+                route.Locations.Add(closestDepot);
+                routes.Add(route);
+            }
+        }
+
+        //// If any customers remain unassigned, assign them to the nearest depot in a single-visit route
+        while (unassignedCustomers.Count > 0)
+        {
+            foreach (var vehicle in model.Vehicles)
+            {
+                if (unassignedCustomers.Count == 0) break;
+
+                var depot = model.Depots.First(d => d.Id == vehicle.DepotId);
+                var route = new VehicleRoute { Vehicle = vehicle, Locations = new() { depot } };  // Start from the depot
+                Location currentLocation = depot with { };
+                double currentCapacity = vehicle.Capacity;
+
+                while (unassignedCustomers.Count > 0 && currentCapacity > 0)
+                {
+                    var nearestCustomer = unassignedCustomers.OrderBy(c => c.CalculateDistance(currentLocation)).First();
+
+                    if (nearestCustomer.Demand <= currentCapacity)
+                    {
+                        route.Locations.Add(nearestCustomer);
+                        currentCapacity -= nearestCustomer.Demand;
+                        unassignedCustomers.Remove(nearestCustomer);
+                        currentLocation = nearestCustomer;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                route.Locations.Add(depot);  // Return to the depot
+                routes.Add(route);
+            }
+        }
+
+        return routes;
     }
 
     private static List<DvrpSolution> GenerateNeighbors(DvrpSolution currentSolution, DvrpModel model, TabuSearchParameters tabuParameters)
@@ -195,7 +212,7 @@ public class TabuSearchSolver : IDvrpSolver
 
                     // Swap
                     var swappedSolution = currentSolution.Clone();
-                    var swappedRoute = swappedSolution.Routes.Single(r => r.Vehicle.Id == route1.Vehicle.Id);
+                    var swappedRoute = swappedSolution.Routes.First(r => r.Vehicle.Id == route1.Vehicle.Id);
                     swappedRoute.Locations[customer1Index] = customer2;
                     swappedRoute.Locations[customer2Index] = customer1;
 
@@ -206,7 +223,7 @@ public class TabuSearchSolver : IDvrpSolver
 
                     // Two-opt
                     var twoOptSolution = currentSolution.Clone();
-                    var twoOptRoute = twoOptSolution.Routes.Single(r => r.Vehicle.Id == route1.Vehicle.Id);
+                    var twoOptRoute = twoOptSolution.Routes.First(r => r.Vehicle.Id == route1.Vehicle.Id);
                     twoOptRoute.Locations.Reverse(Math.Min(customer1Index, customer2Index), Math.Abs(customer1Index - customer2Index) + 1);
 
                     // Update fitness
@@ -309,4 +326,3 @@ public class TabuSearchSolver : IDvrpSolver
         return intensifiedSolution;
     }
 }
-

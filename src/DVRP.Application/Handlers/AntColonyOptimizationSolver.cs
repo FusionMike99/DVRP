@@ -1,6 +1,5 @@
 ﻿using DVRP.Application.Abstractions;
 using DVRP.Domain.Entities;
-using DVRP.Domain.Enums;
 
 namespace DVRP.Application.Handlers;
 
