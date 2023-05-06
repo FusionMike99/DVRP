@@ -6,8 +6,6 @@ namespace DVRP.Application.Handlers;
 
 public class TabuSearchSolver : IDvrpSolver
 {
-    public Algorithm Algorithm { get; } = Algorithm.TabuSearch;
-
     public DvrpSolution Solve(DvrpModel model, DvrpSolverParameters parameters, DvrpSolution? initialSolution = null)
     {
         if (parameters is not TabuSearchParameters tabuParameters)

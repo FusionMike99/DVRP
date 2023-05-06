@@ -6,8 +6,6 @@ namespace DVRP.Application.Handlers;
 
 public class AntColonyOptimizationSolver : IDvrpSolver
 {
-    public Algorithm Algorithm => Algorithm.AntColonyOptimization;
-
     public DvrpSolution Solve(DvrpModel model, DvrpSolverParameters parameters, DvrpSolution? initialSolution = null)
     {
         if (parameters is not AntColonyParameters antColonyParameters)
@@ -47,45 +45,45 @@ public class AntColonyOptimizationSolver : IDvrpSolver
 
     private static DvrpSolution ConstructSolution(DvrpModel model, AntColonyParameters parameters, PheromoneMatrix pheromoneMatrix, DistanceMatrix distanceMatrix)
     {
-        List<Customer> unvisitedCustomers = new(model.Customers);
-        List<Vehicle> vehicles = new(model.Vehicles);
-        List<VehicleRoute> vehicleRoutes = new();
+        var routes = new List<VehicleRoute>();
+        var remainingCustomers = new List<Customer>(model.Customers);
 
-        while (unvisitedCustomers.Count > 0 && vehicles.Count > 0)
+        while (remainingCustomers.Count > 0)
         {
-            Vehicle vehicle = vehicles[0];
-            vehicles.RemoveAt(0);
-            
-            Location depot = model.Depots.First(d => d.Id == vehicle.DepotId);
-            VehicleRoute vehicleRoute = new() { Vehicle = vehicle with { }, Locations = new() { depot with { } } };
-            Location currentLocation = depot with { };
-            double remainingCapacity = vehicle.Capacity;
-
-            while (true)
+            foreach (var vehicle in model.Vehicles)
             {
-                Location? nextLocation = SelectNextLocation(currentLocation, unvisitedCustomers, remainingCapacity, pheromoneMatrix, distanceMatrix, parameters);
+                if (remainingCustomers.Count == 0) break;
 
-                if (nextLocation == null)
+                var depot = model.Depots.First(d => d.Id == vehicle.DepotId);
+                var route = new VehicleRoute { Vehicle = vehicle, Locations = new() { depot } };  // Start from the depot
+                Location currentLocation = depot with { };
+                double currentCapacity = vehicle.Capacity;
+
+                while (remainingCustomers.Count > 0 && currentCapacity > 0)
                 {
-                    vehicleRoute.Locations.Add(depot); // Return to the depot
-                    break;
+                    Location? nextLocation = SelectNextLocation(currentLocation, remainingCustomers, currentCapacity, pheromoneMatrix, distanceMatrix, parameters);
+
+                    if (nextLocation == null)
+                    {
+                        break;
+                    }
+
+                    route.Locations.Add(nextLocation);
+                    currentLocation = nextLocation;
+
+                    if (nextLocation is Customer customer)
+                    {
+                        currentCapacity -= customer.Demand;
+                        remainingCustomers.Remove(customer);
+                    }
                 }
 
-                vehicleRoute.Locations.Add(nextLocation);
-                currentLocation = nextLocation;
-
-                if (nextLocation is Customer customer)
-                {
-                    remainingCapacity -= customer.Demand;
-                    unvisitedCustomers.Remove(customer);
-                }
+                route.Locations.Add(depot);  // Return to the depot
+                routes.Add(route);
             }
-
-            vehicleRoutes.Add(vehicleRoute);
         }
 
-        DvrpSolution solution = new() { Routes = vehicleRoutes };
-        return solution;
+        return new DvrpSolution { Routes = routes };
     }
 
     private static Location? SelectNextLocation(Location currentLocation, List<Customer> unvisitedCustomers, double remainingCapacity,

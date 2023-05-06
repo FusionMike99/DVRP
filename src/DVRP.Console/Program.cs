@@ -32,32 +32,32 @@ DvrpModel model = new()
 };
 
 // Create GeneticAlgorithmSolver instance
-GeneticAlgorithmSolver solver = new();
-
-// Define solver parameters
-GeneticAlgorithmParameters parameters = new()
-{
-    PopulationSize = 50,
-    MutationRate = 0.01,
-    CrossoverRate = 0.1,
-    TournamentSize = 3,
-    MaxGenerations = 200,
-    SelectionMethod = DVRP.Domain.Enums.SelectionMethod.RouletteWheelSelection
-};
-
-// Create AntColonyOptimkizationSolver instance
-//AntColonyOptimizationSolver solver = new();
+//GeneticAlgorithmSolver solver = new();
 
 //// Define solver parameters
-//AntColonyParameters parameters = new()
+//GeneticAlgorithmParameters parameters = new()
 //{
-//    MaxIterations = 100,
-//    NumberOfAnts = 10,
-//    Alpha = 1,
-//    Beta = 2,
-//    EvaporationRate = 0.1,
-//    Q = 10
+//    PopulationSize = 50,
+//    MutationRate = 0.01,
+//    CrossoverRate = 0.1,
+//    TournamentSize = 3,
+//    MaxGenerations = 200,
+//    SelectionMethod = DVRP.Domain.Enums.SelectionMethod.RouletteWheelSelection
 //};
+
+// Create AntColonyOptimkizationSolver instance
+AntColonyOptimizationSolver solver = new();
+
+// Define solver parameters
+AntColonyParameters parameters = new()
+{
+    MaxIterations = 100,
+    NumberOfAnts = 10,
+    Alpha = 1,
+    Beta = 2,
+    EvaporationRate = 0.1,
+    Q = 10
+};
 
 //GaAcoSolver solver = new();
 

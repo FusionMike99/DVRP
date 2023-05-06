@@ -12,6 +12,4 @@ public abstract class BaseMatrix
             Data[i][j] = value; 
         }
     }
-
-    public int Length => Data.Count;
 }
