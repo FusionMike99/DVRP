@@ -7,38 +7,42 @@ public static class MutationMethods
 {
     public static void SwapMutation(DvrpSolution solution, double mutationRate)
     {
-        int numRoutes = solution.Routes.Count;
-
-        for (int i = 0; i < numRoutes; i++)
+        if (Random.Shared.NextDouble() < mutationRate)
         {
-            if (Random.Shared.NextDouble() < mutationRate)
+            int routeIndex1 = Random.Shared.Next(solution.Routes.Count);
+            int routeIndex2 = Random.Shared.Next(solution.Routes.Count);
+
+            VehicleRoute route1 = solution.Routes[routeIndex1];
+            VehicleRoute route2 = solution.Routes[routeIndex2];
+
+            List<Customer> customers1 = route1.Locations.OfType<Customer>().ToList();
+            List<Customer> customers2 = route2.Locations.OfType<Customer>().ToList();
+
+            if (customers1.Count == 0 || customers2.Count == 0)
             {
-                VehicleRoute route1 = solution.Routes[i];
-                VehicleRoute route2;
+                return; // Skip if one of the routes has no customers
+            }
 
-                // Ensure the selected routes belong to different depots
-                do
-                {
-                    route2 = solution.Routes[Random.Shared.Next(numRoutes)];
-                } while (route1.Vehicle.DepotId == route2.Vehicle.DepotId);
+            int customerIndex1 = Random.Shared.Next(customers1.Count);
+            int customerIndex2 = Random.Shared.Next(customers2.Count);
 
-                // Randomly select customers from each route
-                int index1 = Random.Shared.Next(1, route1.Locations.Count - 1);
-                int index2 = Random.Shared.Next(1, route2.Locations.Count - 1);
+            Customer customer1 = customers1[customerIndex1];
+            Customer customer2 = customers2[customerIndex2];
 
-                Customer customer1 = route1.Locations[index1] as Customer;
-                Customer customer2 = route2.Locations[index2] as Customer;
+            // Skip if one of the customers is already in the other route
+            if (route1.Locations.Contains(customer2) || route2.Locations.Contains(customer1))
+            {
+                return;
+            }
 
-                // Check if swapping the customers would violate the capacity constraints
-                double newRoute1Demand = route1.Locations.OfType<Customer>().Sum(c => c.Demand) - customer1.Demand + customer2.Demand;
-                double newRoute2Demand = route2.Locations.OfType<Customer>().Sum(c => c.Demand) - customer2.Demand + customer1.Demand;
+            double newRoute1Demand = route1.Locations.OfType<Customer>().Sum(c => c.Demand) - customer1.Demand + customer2.Demand;
+            double newRoute2Demand = route2.Locations.OfType<Customer>().Sum(c => c.Demand) - customer2.Demand + customer1.Demand;
 
-                if (newRoute1Demand <= route1.Vehicle.Capacity && newRoute2Demand <= route2.Vehicle.Capacity)
-                {
-                    // Perform the swap
-                    route1.Locations[index1] = customer2;
-                    route2.Locations[index2] = customer1;
-                }
+            if (newRoute1Demand <= route1.Vehicle.Capacity && newRoute2Demand <= route2.Vehicle.Capacity)
+            {
+                // Swap customers
+                route1.Locations[route1.Locations.IndexOf(customer1)] = customer2;
+                route2.Locations[route2.Locations.IndexOf(customer2)] = customer1;
             }
         }
     }
@@ -47,7 +51,7 @@ public static class MutationMethods
     {
         foreach (VehicleRoute route in solution.Routes)
         {
-            if (Random.Shared.NextDouble() <= mutationRate)
+            if (Random.Shared.NextDouble() < mutationRate)
             {
                 List<Customer> customers = route.Locations.OfType<Customer>().ToList();
                 int customerCount = customers.Count;
@@ -58,14 +62,20 @@ public static class MutationMethods
                 int start = Math.Min(mutationIndex1, mutationIndex2);
                 int end = Math.Max(mutationIndex1, mutationIndex2);
 
-                customers.Reverse(start, end - start);
+                List<Customer> reversedCustomers = new List<Customer>(customers);
+                reversedCustomers.Reverse(start, end - start);
 
-                // Repair the solution if capacity constraints are violated
-                // ... implement a repair strategy if needed
+                // Check if the mutated route violates capacity constraints
+                double reversedRouteDemand = reversedCustomers.Sum(c => c.Demand);
+                if (reversedRouteDemand > route.Vehicle.Capacity)
+                {
+                    // If capacity constraints are violated, discard the mutation
+                    continue;
+                }
 
                 // Reconstruct the mutated route
                 List<Location> mutatedLocations = new() { route.Locations[^1] };
-                mutatedLocations.AddRange(customers);
+                mutatedLocations.AddRange(reversedCustomers);
                 mutatedLocations.Add(route.Locations[^1]);
                 route.Locations = mutatedLocations;
             }

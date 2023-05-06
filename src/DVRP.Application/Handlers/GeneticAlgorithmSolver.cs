@@ -7,8 +7,6 @@ namespace DVRP.Application.Handlers;
 
 public class GeneticAlgorithmSolver : IDvrpSolver
 {
-    public Algorithm Algorithm => Algorithm.GeneticAlgorithm;
-
     public DvrpSolution Solve(DvrpModel model, DvrpSolverParameters parameters, DvrpSolution? initialSolution = null)
     {
         if(parameters is not GeneticAlgorithmParameters gaParameters)
@@ -32,7 +30,7 @@ public class GeneticAlgorithmSolver : IDvrpSolver
             var offspring = PerformCrossover(model, selectedParents, gaParameters);
 
             // 3.3 Mutation
-            PerformMutation(model, offspring, gaParameters);
+            PerformMutation(offspring, gaParameters);
 
             // 3.4 Replacement
             ReplacePopulation(population, offspring);
@@ -52,7 +50,7 @@ public class GeneticAlgorithmSolver : IDvrpSolver
 
         for (int i = 0; i < gaParameters.PopulationSize; i++)
         {
-            var solution = InitializationMethods.HybridInitialization(model, 0.7);
+            var solution = InitializationMethods.HybridInitialization(model, 0.3);
             population.Add(solution);
         }
 
@@ -90,7 +88,7 @@ public class GeneticAlgorithmSolver : IDvrpSolver
 
             if (Random.Shared.NextDouble() < gaParameters.CrossoverRate)
             {
-                (DvrpSolution offspring1, DvrpSolution offspring2) = CrossoverMethods.EdgeRecombinationCrossover(model, parent1, parent2);
+                (DvrpSolution offspring1, DvrpSolution offspring2) = CrossoverMethods.OrderCrossover(model, parent1, parent2);
                 offspringPopulation.Add(offspring1);
                 offspringPopulation.Add(offspring2);
             }
@@ -104,36 +102,10 @@ public class GeneticAlgorithmSolver : IDvrpSolver
         return offspringPopulation;
     }
 
-    private static void PerformMutation(DvrpModel model, List<DvrpSolution> offspring, GeneticAlgorithmParameters gaParameters)
+    private static void PerformMutation(List<DvrpSolution> offspring, GeneticAlgorithmParameters gaParameters)
     {
         foreach (DvrpSolution solution in offspring)
         {
-            /*foreach (VehicleRoute route in solution.Routes)
-            {
-                if (Random.Shared.NextDouble() <= gaParameters.MutationRate)
-                {
-                    List<Customer> customers = route.Locations.OfType<Customer>().ToList();
-                    int customerCount = customers.Count;
-
-                    int mutationIndex1 = Random.Shared.Next(customerCount);
-                    int mutationIndex2 = Random.Shared.Next(customerCount);
-
-                    int start = Math.Min(mutationIndex1, mutationIndex2);
-                    int end = Math.Max(mutationIndex1, mutationIndex2);
-
-                    customers.Reverse(start, end - start);
-
-                    // Repair the solution if capacity constraints are violated
-                    // ... implement a repair strategy if needed
-
-                    // Reconstruct the mutated route
-                    Depot startDepot = model.Depots.First(depot => depot.Id == route.Vehicle.DepotId) with { };
-                    List<Location> mutatedLocations = new() { startDepot };
-                    mutatedLocations.AddRange(customers);
-                    mutatedLocations.Add(startDepot);
-                    route.Locations = mutatedLocations;
-                }
-            }*/
             MutationMethods.InverseMutation(solution, gaParameters.MutationRate);
         }
     }

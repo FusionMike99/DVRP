@@ -37,12 +37,12 @@ GeneticAlgorithmSolver solver = new();
 // Define solver parameters
 GeneticAlgorithmParameters parameters = new()
 {
-    PopulationSize = 100,
+    PopulationSize = 50,
     MutationRate = 0.01,
     CrossoverRate = 0.1,
     TournamentSize = 3,
     MaxGenerations = 200,
-    SelectionMethod = DVRP.Domain.Enums.SelectionMethod.TruncationSelection
+    SelectionMethod = DVRP.Domain.Enums.SelectionMethod.RouletteWheelSelection
 };
 
 // Create AntColonyOptimkizationSolver instance
@@ -121,9 +121,9 @@ GeneticAlgorithmParameters parameters = new()
 DvrpSolution solution = solver.Solve(model, parameters);
 
 // Output the results
-Console.WriteLine($"Total distance: {solution.TotalDistance}");
+Console.WriteLine($"Total distance: {solution.TotalDistance:F0}");
 Console.WriteLine("Routes:");
 foreach (var route in solution.Routes)
 {
-    Console.WriteLine($"Vehicle {route.Vehicle.Id}: {string.Join(" -> ", route.Locations.Select(l => l.Id))}; Distance: {route.Distance}");
+    Console.WriteLine($"Vehicle {route.Vehicle.Id}: {string.Join(" -> ", route.Locations.Select(l => l.Id))}; Distance: {route.Distance:F2}");
 }
