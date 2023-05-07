@@ -1,25 +1,18 @@
-﻿<Card Margin="Margin.Is4.OnY">
-    <CardHeader>
-        <CardTitle>Dynamic Vehicle Routing Problem Data</CardTitle>
-    </CardHeader>
-    <CardBody>
-        <Tabs SelectedTab="@_selectedTab" SelectedTabChanged="@OnSelectedTabChanged">
-            <Items>
-                <Tab Name="depots">Depots</Tab>
-                <Tab Name="vehicles">Vehicles</Tab>
-                <Tab Name="customers">Customers</Tab>
-            </Items>
-            <Content>
-                <TabPanel Name="depots">
-                    <DepotsInput Depots="@Data.Depots" />
-                </TabPanel>
-                <TabPanel Name="vehicles">
-                    <VehiclesInput Vehicles="@Data.Vehicles" Depots="@Data.Depots" />
-                </TabPanel>
-                <TabPanel Name="customers">
-                    <CustomersInput Customers="@Data.Customers" />
-                </TabPanel>
-            </Content>
-        </Tabs>
-    </CardBody>
-</Card>
+﻿<Tabs SelectedTab="@_selectedTab" SelectedTabChanged="@OnSelectedTabChanged">
+    <Items>
+        <Tab Name="depots">Depots</Tab>
+        <Tab Name="vehicles">Vehicles</Tab>
+        <Tab Name="customers">Customers</Tab>
+    </Items>
+    <Content>
+        <TabPanel Name="depots">
+            <DepotsInput Depots="@Data.Depots" />
+        </TabPanel>
+        <TabPanel Name="vehicles">
+            <VehiclesInput Vehicles="@Data.Vehicles" Depots="@Data.Depots" />
+        </TabPanel>
+        <TabPanel Name="customers">
+            <CustomersInput Customers="@Data.Customers" />
+        </TabPanel>
+    </Content>
+</Tabs>

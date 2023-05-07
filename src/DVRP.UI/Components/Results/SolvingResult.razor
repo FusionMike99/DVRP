@@ -1,25 +1,19 @@
-﻿@if(Solution is null)
+﻿@*@if(Solution is null)
 {
 return;
-}
+}*@
 
-<Card Margin="Margin.Is4.OnY">
-    <CardHeader>
-        <CardTitle>Dynamic Vehicle Routing Problem Data</CardTitle>
-    </CardHeader>
-    <CardBody>
-        <Tabs SelectedTab="@_selectedTab" SelectedTabChanged="@OnSelectedTabChanged">
-            <Items>
-                <Tab Name="table">Table</Tab>
-                <Tab Name="graph">Graph</Tab>
-            </Items>
-            <Content>
-                <TabPanel Name="table">
-                    <TableResult @bind-Solution="Solution" />
-                </TabPanel>
-                <TabPanel Name="graph">
-                </TabPanel>
-            </Content>
-        </Tabs>
-    </CardBody>
-</Card>
+<Tabs SelectedTab="@_selectedTab" SelectedTabChanged="@OnSelectedTabChanged">
+    <Items>
+        <Tab Name="table">Table</Tab>
+        <Tab Name="graph">Graph</Tab>
+    </Items>
+    <Content>
+        <TabPanel Name="table">
+            <TableResult @bind-Solution="Solution" />
+        </TabPanel>
+        <TabPanel Name="graph">
+            <GraphResult />
+        </TabPanel>
+    </Content>
+</Tabs>

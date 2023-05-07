@@ -2,13 +2,38 @@
 
 <div class="container">
     <h1 class="my-3">Dynamic Vehicle Routing Problem Analyzer</h1>
-
-    <SelectAlgorithm SelectedAlgorithm="@SelectedAlgorithm" SelectedAlgorithmChanged="OnSelectedAlgorithmChanged"
-        @bind-AlgorithmParameters="AlgorithmParameters" />
-    
-    <DvrpDataInput @bind-Data="@Data" />
-
-    <SolvingResult @bind-Solution="Solution" />
-
-    <button type="button" class="btn btn-primary" @onclick="RunSolver">Run Solver</button>
+    <Accordion>
+        <Collapse Visible="true">
+            <CollapseHeader>
+                <Heading Size="HeadingSize.Is5">
+                    <AccordionToggle>Select Algorithm</AccordionToggle>
+                </Heading>
+            </CollapseHeader>
+            <CollapseBody>
+                <SelectAlgorithm SelectedAlgorithm="@SelectedAlgorithm" SelectedAlgorithmChanged="OnSelectedAlgorithmChanged"
+                                 @bind-AlgorithmParameters="AlgorithmParameters" />
+            </CollapseBody>
+        </Collapse>
+        <Collapse>
+            <CollapseHeader>
+                <Heading Size="HeadingSize.Is5">
+                    <AccordionToggle>Dynamic Vehicle Routing Problem Data</AccordionToggle>
+                </Heading>
+            </CollapseHeader>
+            <CollapseBody>
+                <DvrpDataInput @bind-Data="@Data" />
+            </CollapseBody>
+        </Collapse>
+        <Collapse>
+            <CollapseHeader>
+                <Heading Size="HeadingSize.Is5">
+                    <AccordionToggle>Solving Result</AccordionToggle>
+                </Heading>
+            </CollapseHeader>
+            <CollapseBody>
+                <SolvingResult @bind-Solution="Solution" />
+                <Button Color="Color.Primary" Clicked="RunSolver">Run Solver</Button>
+            </CollapseBody>
+        </Collapse>
+    </Accordion>
 </div>
