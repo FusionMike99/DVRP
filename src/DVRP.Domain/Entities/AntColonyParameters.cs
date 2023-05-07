@@ -1,6 +1,6 @@
 ﻿namespace DVRP.Domain.Entities;
 
-public record AntColonyParameters : DvrpSolverParameters
+public class AntColonyParameters : DvrpSolverParameters
 {
     public int MaxIterations { get; set; }
     public int NumberOfAnts { get; set; }

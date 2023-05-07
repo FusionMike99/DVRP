@@ -9,7 +9,7 @@ namespace DVRP.UI.Components.Parameters
         private string SelectedTab => _selectedAlgorithm.ToString();
 
         private Algorithm _selectedAlgorithm = Algorithm.GeneticAlgorithm;
-        private DvrpSolverParameters? _algorithmParameters;
+        private DvrpSolverParameters _algorithmParameters;
 
         [Parameter]
         public Algorithm SelectedAlgorithm
@@ -26,7 +26,7 @@ namespace DVRP.UI.Components.Parameters
         }
 
         [Parameter]
-        public DvrpSolverParameters? AlgorithmParameters
+        public DvrpSolverParameters AlgorithmParameters
         {
             get => _algorithmParameters;
             set
@@ -43,7 +43,7 @@ namespace DVRP.UI.Components.Parameters
         public EventCallback<Algorithm> SelectedAlgorithmChanged { get; set; }
 
         [Parameter]
-        public EventCallback<DvrpSolverParameters?> AlgorithmParametersChanged { get; set; }
+        public EventCallback<DvrpSolverParameters> AlgorithmParametersChanged { get; set; }
 
         private Task OnSelectedTabChanged(string algorithm)
         {

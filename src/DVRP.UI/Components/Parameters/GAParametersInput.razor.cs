@@ -7,28 +7,16 @@ public partial class GaParametersInput
 {
     private GeneticAlgorithmParameters _parameters = new();
 
-    private GeneticAlgorithmParameters TypedParameters
+    [Parameter]
+    public DvrpSolverParameters Parameters
     {
         get => _parameters;
         set
         {
-            if(_parameters != value)
+            if (value is GeneticAlgorithmParameters typedValue && _parameters != typedValue)
             {
-                _parameters = value;
-                ParametersChanged.InvokeAsync(value);
-            }
-        }
-    }
-
-    [Parameter]
-    public DvrpSolverParameters Parameters
-    {
-        get => TypedParameters;
-        set
-        {
-            if (value is GeneticAlgorithmParameters castedValue)
-            {
-                TypedParameters = castedValue;
+                _parameters = typedValue;
+                ParametersChanged.InvokeAsync(typedValue);
             }
         }
     }

@@ -11,7 +11,7 @@ public partial class Index
     private DvrpSolverSelection SolverSelection { get; set; } = null!;
 
     private Algorithm SelectedAlgorithm { get; set; } = Algorithm.GeneticAlgorithm;
-    private DvrpSolverParameters? AlgorithmParameters { get; set; }
+    private DvrpSolverParameters AlgorithmParameters { get; set; } = new GeneticAlgorithmParameters();
     private DvrpModel Data { get; set; } = new();
     private DvrpSolution? Solution { get; set; }
 
@@ -23,5 +23,20 @@ public partial class Index
         {
             Solution = solver.Solve(Data, AlgorithmParameters);
         }
+    }
+
+    private void OnSelectedAlgorithmChanged(Algorithm algorithm)
+    {
+        SelectedAlgorithm = algorithm;
+        AlgorithmParameters = SelectedAlgorithm switch
+        {
+            Algorithm.GeneticAlgorithm => new GeneticAlgorithmParameters(),
+            Algorithm.AntColonyOptimization => new AntColonyParameters(),
+            Algorithm.TabuSearch => new TabuSearchParameters(),
+            Algorithm.GaAcoAlgorithm => new GaAcoParameters(),
+            Algorithm.GaTsAlgorithm => new GaTsParameters(),
+            Algorithm.TsAcoAlgorithm => new TsAcoParameters(),
+            _ => new GeneticAlgorithmParameters()
+        };
     }
 }

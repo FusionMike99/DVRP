@@ -1,5 +1,5 @@
 ﻿namespace DVRP.Domain.Entities;
 
-public abstract record DvrpSolverParameters
+public abstract class DvrpSolverParameters
 {
 }

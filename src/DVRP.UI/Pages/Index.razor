@@ -3,7 +3,8 @@
 <div class="container">
     <h1 class="my-3">Dynamic Vehicle Routing Problem Analyzer</h1>
 
-    <SelectAlgorithm @bind-SelectedAlgorithm="@SelectedAlgorithm" @bind-AlgorithmParameters="AlgorithmParameters" />
+    <SelectAlgorithm SelectedAlgorithm="@SelectedAlgorithm" SelectedAlgorithmChanged="OnSelectedAlgorithmChanged"
+        @bind-AlgorithmParameters="AlgorithmParameters" />
     
     <DvrpDataInput @bind-Data="@Data" />
 

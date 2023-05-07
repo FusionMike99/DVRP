@@ -17,18 +17,18 @@
                 <TableRowCell>
                     @for (int i = 0; i < route.Locations.Count - 1; i++)
                     {
-                        @route.Locations[i] <Icon Name="IconName.ArrowRight"/>
+                        @route.Locations[i].Id <Icon Name="IconName.ArrowRight"/>
                     }
-                    @route.Locations[^1]
+                    @route.Locations[^1].Id
                 </TableRowCell>
-                <TableRowCell>@route.Distance</TableRowCell>
+                <TableRowCell>@route.Distance.ToString("F0")</TableRowCell>
             </TableRow>
         }
     </TableBody>
     <TableFooter>
         <TableRow>
             <TableRowHeader>Total distance:</TableRowHeader>
-            <TableRowCell>@Solution?.TotalDistance</TableRowCell>
+            <TableRowCell>@Solution?.TotalDistance.ToString("F0")</TableRowCell>
         </TableRow>
     </TableFooter>
 </Table>

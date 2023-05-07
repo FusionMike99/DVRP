@@ -1,6 +1,6 @@
 ﻿namespace DVRP.Domain.Entities;
 
-public record TabuSearchParameters : DvrpSolverParameters
+public class TabuSearchParameters : DvrpSolverParameters
 {
     public int TabuListSize { get; set; }
     public int MaxIterations { get; set; }

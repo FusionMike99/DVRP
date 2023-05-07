@@ -6,25 +6,25 @@
         <Field Horizontal>
             <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Generations</FieldLabel>
             <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
-                <NumericEdit Min="1" Step="1" @bind-Value:event="oninput" @bind-Value="@TypedParameters.MaxGenerations" />
+                <NumericEdit Min="1" Step="1" @bind-Value="@_parameters.MaxGenerations" />
             </FieldBody>
         </Field>
         <Field Horizontal>
             <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Population Size</FieldLabel>
             <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
-                <NumericEdit Min="1" Step="1" @bind-Value:event="oninput" @bind-Value="@TypedParameters.PopulationSize" />
+                <NumericEdit Min="1" Step="1" @bind-Value="@_parameters.PopulationSize" />
             </FieldBody>
         </Field>
         <Field Horizontal>
             <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Mutation Rate</FieldLabel>
             <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
-                <NumericEdit TValue="double" Culture="en-us" @bind-Value:event="oninput" Min="0.00D" Max="1.00D" @bind-Value="@TypedParameters.MutationRate" />
+                <NumericEdit TValue="double" Min="0.00D" Max="1.00D" @bind-Value="@_parameters.MutationRate" />
             </FieldBody>
         </Field>
         <Field Horizontal>
             <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Crossover Rate</FieldLabel>
             <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
-                <NumericEdit TValue="double" Culture="en-us" @bind-Value:event="oninput" Min="0.00" Max="1.00D" @bind-Value="@TypedParameters.CrossoverRate" />
+                <NumericEdit TValue="double" Min="0.00" Max="1.00D" @bind-Value="@_parameters.CrossoverRate" />
             </FieldBody>
         </Field>
     </CardBody>
