@@ -17,9 +17,11 @@ builder.Services.AddBlazorise(options => options.Immediate = true)
     .AddBootstrap5Providers()
     .AddFontAwesomeIcons();
 
-builder.Services.AddScoped<IDvrpSolver, GeneticAlgorithmSolver>();
-builder.Services.AddScoped<IDvrpSolver, AntColonyOptimizationSolver>();
-builder.Services.AddScoped<IDvrpSolver, GaAcoSolver>();
+builder.Services.AddScoped<GeneticAlgorithmSolver>();
+builder.Services.AddScoped<AntColonyOptimizationSolver>();
+builder.Services.AddScoped<GaAcoSolver>();
+builder.Services.AddScoped<GaTsSolver>();
+builder.Services.AddScoped<TsAcoSolver>();
 builder.Services.AddScoped<DvrpSolverSelection>(sp => key =>
 {
     return key switch
@@ -27,6 +29,8 @@ builder.Services.AddScoped<DvrpSolverSelection>(sp => key =>
         Algorithm.GeneticAlgorithm => sp.GetRequiredService<GeneticAlgorithmSolver>(),
         Algorithm.AntColonyOptimization => sp.GetRequiredService<AntColonyOptimizationSolver>(),
         Algorithm.GaAcoAlgorithm => sp.GetRequiredService<GaAcoSolver>(),
+        Algorithm.GaTsAlgorithm => sp.GetRequiredService<GaTsSolver>(),
+        Algorithm.TsAcoAlgorithm => sp.GetRequiredService<TsAcoSolver>(),
         _ => throw new KeyNotFoundException()
     };
 });

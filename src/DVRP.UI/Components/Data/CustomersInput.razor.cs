@@ -6,7 +6,7 @@ namespace DVRP.UI.Components.Data;
 public partial class CustomersInput
 {
     [Parameter]
-    public List<Customer> Customers { get; set; }
+    public List<Customer> Customers { get; set; } = new();
 
-    private Customer _selectedCustomer;
+    private Customer? _selectedCustomer;
 }

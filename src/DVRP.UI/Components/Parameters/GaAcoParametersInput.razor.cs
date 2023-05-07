@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Components;
 
 namespace DVRP.UI.Components.Parameters
 {
-    public partial class GaParametersInput
+    public partial class GaAcoParametersInput
     {
-        private GeneticAlgorithmParameters _parameters = new();
+        private GaAcoParameters _parameters = new();
 
         [Parameter]
         public DvrpSolverParameters Parameters
@@ -13,7 +13,7 @@ namespace DVRP.UI.Components.Parameters
             get => _parameters;
             set
             {
-                if (value is GeneticAlgorithmParameters castedValue && _parameters != castedValue)
+                if (value is GaAcoParameters castedValue && _parameters != castedValue)
                 {
                     _parameters = castedValue;
                     ParametersChanged.InvokeAsync(castedValue);

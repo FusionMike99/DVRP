@@ -5,7 +5,7 @@ namespace DVRP.UI.Components.Data;
 
 public partial class DVRPDataInput
 {
-    private string _selectedTab = "customers";
+    private string _selectedTab = "depots";
     private DvrpModel _data = new();
 
     [Parameter]

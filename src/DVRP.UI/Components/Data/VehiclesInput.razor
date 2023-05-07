@@ -3,9 +3,19 @@
 <DataGrid TItem="Vehicle" Data="@Vehicles" @bind-SelectedRow="@_selectedVehicle"
           Editable Responsive ShowPager CommandMode="DataGridCommandMode.ButtonRow">
     <DataGridColumns>
-        <DataGridNumericColumn Field="@nameof(Vehicle.Id)" Caption="Id" Sortable="false" />
+        <DataGridColumn Field="@nameof(Vehicle.Id)" Caption="Id" Sortable="false" />
         <DataGridNumericColumn Field="@nameof(Vehicle.Capacity)" Caption="Capacity" Editable />
-        <DataGridNumericColumn Field="@nameof(Vehicle.DepotId)" Caption="Depot Id" Editable />
+        <DataGridSelectColumn Field="@nameof(Vehicle.DepotId)" Caption="Depot Id" Editable >
+            <EditTemplate>
+                <Select TValue="string" SelectedValue="@((string)(((CellEditContext)context).CellValue))"
+                        SelectedValueChanged="@((v) => ((CellEditContext)context).CellValue = v)">
+                    @foreach (var depot in Depots)
+                    {
+                        <SelectItem Value="@(depot.Id)">@(depot.Id)</SelectItem>
+                    }
+                </Select>
+            </EditTemplate>
+        </DataGridSelectColumn>
     </DataGridColumns>
     <ButtonRowTemplate>
         <Button Color="Color.Success" Clicked="context.NewCommand.Clicked">New</Button>

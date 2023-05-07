@@ -7,17 +7,17 @@
             <Items>
                 <Tab Name="@(nameof(Algorithm.GeneticAlgorithm))">Genetic Algorithm</Tab>
                 <Tab Name="@(nameof(Algorithm.AntColonyOptimization))">Ant Colony Optimization</Tab>
-                <Tab Name="@(nameof(Algorithm.GaAcoAlgorithm))">Hybrid Algorithm</Tab>
+                <Tab Name="@(nameof(Algorithm.GaAcoAlgorithm))">GA-ACO Algorithm</Tab>
             </Items>
             <Content>
                 <TabPanel Name="@(nameof(Algorithm.GeneticAlgorithm))">
-                    <GAParametersInput />
+                    <GaParametersInput @bind-Parameters="AlgorithmParameters" />
                 </TabPanel>
                 <TabPanel Name="@(nameof(Algorithm.AntColonyOptimization))">
-                    <ACOParametersInput />
+                    <AcoParametersInput @bind-Parameters="AlgorithmParameters" />
                 </TabPanel>
                 <TabPanel Name="@(nameof(Algorithm.GaAcoAlgorithm))">
-                    <HybridParametersInput />
+                    <GaAcoParametersInput @bind-Parameters="AlgorithmParameters" />
                 </TabPanel>
             </Content>
         </Tabs>

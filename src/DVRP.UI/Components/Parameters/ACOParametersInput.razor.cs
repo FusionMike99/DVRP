@@ -3,25 +3,25 @@ using Microsoft.AspNetCore.Components;
 
 namespace DVRP.UI.Components.Parameters
 {
-    public partial class ACOParametersInput
+    public partial class AcoParametersInput
     {
         private AntColonyParameters _parameters = new();
 
         [Parameter]
-        public AntColonyParameters Parameters
+        public DvrpSolverParameters Parameters
         {
             get => _parameters;
             set
             {
-                if (_parameters != value)
+                if (value is AntColonyParameters castedValue && _parameters != castedValue)
                 {
-                    _parameters = value;
-                    ParametersChanged.InvokeAsync(value);
+                    _parameters = castedValue;
+                    ParametersChanged.InvokeAsync(castedValue);
                 }
             }
         }
 
         [Parameter]
-        public EventCallback<AntColonyParameters> ParametersChanged { get; set; }
+        public EventCallback<DvrpSolverParameters> ParametersChanged { get; set; }
     }
 }

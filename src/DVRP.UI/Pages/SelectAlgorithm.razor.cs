@@ -1,4 +1,5 @@
-﻿using DVRP.Domain.Enums;
+﻿using DVRP.Domain.Entities;
+using DVRP.Domain.Enums;
 using Microsoft.AspNetCore.Components;
 
 namespace DVRP.UI.Pages
@@ -8,6 +9,7 @@ namespace DVRP.UI.Pages
         private string SelectedTab => _selectedAlgorithm.ToString();
 
         private Algorithm _selectedAlgorithm = Algorithm.GeneticAlgorithm;
+        private DvrpSolverParameters? _algorithmParameters;
 
         [Parameter]
         public Algorithm SelectedAlgorithm
@@ -24,7 +26,24 @@ namespace DVRP.UI.Pages
         }
 
         [Parameter]
+        public DvrpSolverParameters? AlgorithmParameters
+        {
+            get => _algorithmParameters;
+            set
+            {
+                if (_algorithmParameters != value)
+                {
+                    _algorithmParameters = value;
+                    AlgorithmParametersChanged.InvokeAsync(value);
+                }
+            }
+        }
+
+        [Parameter]
         public EventCallback<Algorithm> SelectedAlgorithmChanged { get; set; }
+
+        [Parameter]
+        public EventCallback<DvrpSolverParameters?> AlgorithmParametersChanged { get; set; }
 
         private Task OnSelectedTabChanged(string algorithm)
         {

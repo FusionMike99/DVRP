@@ -6,25 +6,25 @@
         <Field Horizontal>
             <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Generations</FieldLabel>
             <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
-                <NumericEdit Min="1" Step="1" @bind-Value="@Parameters.MaxGenerations" />
+                <NumericEdit Min="1" Step="1" @bind-Value="@_parameters.MaxGenerations" />
             </FieldBody>
         </Field>
         <Field Horizontal>
             <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Population Size</FieldLabel>
             <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
-                <NumericEdit Min="1" Step="1" @bind-Value="@Parameters.PopulationSize" />
-            </FieldBody>
-        </Field>
-        <Field Horizontal>
-            <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Tournament Size</FieldLabel>
-            <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
-                <NumericEdit Min="1" Step="1" @bind-Value="@Parameters.TournamentSize" />
+                <NumericEdit Min="1" Step="1" @bind-Value="@_parameters.PopulationSize" />
             </FieldBody>
         </Field>
         <Field Horizontal>
             <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Mutation Rate</FieldLabel>
             <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
-                <NumericEdit Min="0" Step="0.05M" @bind-Value="@Parameters.MutationRate" />
+                <NumericEdit Min="0" Max="1" Step="0.05M" @bind-Value="@_parameters.MutationRate" />
+            </FieldBody>
+        </Field>
+        <Field Horizontal>
+            <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Mutation Rate</FieldLabel>
+            <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
+                <NumericEdit Min="0" Max="1" Step="0.05M" @bind-Value="@_parameters.CrossoverRate" />
             </FieldBody>
         </Field>
     </CardBody>

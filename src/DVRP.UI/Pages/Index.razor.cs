@@ -1,5 +1,5 @@
-﻿using DVRP.Domain.Enums;
-using DVRP.Domain.Entities;
+﻿using DVRP.Domain.Entities;
+using DVRP.Domain.Enums;
 
 namespace DVRP.UI.Pages
 {
@@ -7,7 +7,6 @@ namespace DVRP.UI.Pages
     {
         private Algorithm SelectedAlgorithm { get; set; } = Algorithm.GeneticAlgorithm;
 
-
-        private Customer customer = new();
+        private DvrpSolverParameters? AlgorithmParameters { get; set; }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using DVRP.Application.Abstractions;
 using DVRP.Application.Helpers;
 using DVRP.Domain.Entities;
-using DVRP.Domain.Enums;
 
 namespace DVRP.Application.Handlers;
 
@@ -24,7 +23,7 @@ public class GeneticAlgorithmSolver : IDvrpSolver
         for (int generation = 0; generation < gaParameters.MaxGenerations; generation++)
         {
             // 3.1 Selection
-            var selectedParents = SelectParents(population, gaParameters);
+            var selectedParents = SelectionMethods.RouletteWheelSelection(population, population.Count);
 
             // 3.2 Crossover
             var offspring = PerformCrossover(model, selectedParents, gaParameters);
@@ -63,18 +62,6 @@ public class GeneticAlgorithmSolver : IDvrpSolver
         {
             solution.CalculateFitness(model.Depots.Count);
         }
-    }
-
-    private static List<DvrpSolution> SelectParents(List<DvrpSolution> population, GeneticAlgorithmParameters gaParameters)
-    {
-        return gaParameters.SelectionMethod switch
-        {
-            SelectionMethod.RouletteWheelSelection => SelectionMethods.RouletteWheelSelection(population, population.Count),
-            SelectionMethod.TournamentSelection => SelectionMethods.TournamentSelection(population, population.Count, gaParameters.TournamentSize),
-            SelectionMethod.RankSelection => SelectionMethods.RankSelection(population, population.Count),
-            SelectionMethod.TruncationSelection => SelectionMethods.TruncationSelection(population, 1),
-            _ => SelectionMethods.RouletteWheelSelection(population, population.Count)
-        };
     }
 
     private static List<DvrpSolution> PerformCrossover(DvrpModel model, List<DvrpSolution> selectedParents, GeneticAlgorithmParameters gaParameters)
