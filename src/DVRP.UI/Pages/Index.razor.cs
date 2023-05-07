@@ -10,6 +10,16 @@ public partial class Index
     [Inject]
     private DvrpSolverSelection SolverSelection { get; set; } = null!;
 
+    private readonly Dictionary<Algorithm, DvrpSolverParameters> parametersDictionary = new()
+    {
+        { Algorithm.GeneticAlgorithm, new GeneticAlgorithmParameters() },
+        { Algorithm.AntColonyOptimization, new AntColonyParameters() },
+        { Algorithm.TabuSearch, new TabuSearchParameters() },
+        { Algorithm.GaAcoAlgorithm, new GaAcoParameters() },
+        { Algorithm.GaTsAlgorithm, new GaTsParameters() },
+        { Algorithm.TsAcoAlgorithm, new TsAcoParameters() }
+    };
+
     private Algorithm SelectedAlgorithm { get; set; } = Algorithm.GeneticAlgorithm;
     private DvrpSolverParameters AlgorithmParameters { get; set; } = new GeneticAlgorithmParameters();
     private DvrpModel Data { get; set; } = new();
@@ -28,15 +38,7 @@ public partial class Index
     private void OnSelectedAlgorithmChanged(Algorithm algorithm)
     {
         SelectedAlgorithm = algorithm;
-        AlgorithmParameters = SelectedAlgorithm switch
-        {
-            Algorithm.GeneticAlgorithm => new GeneticAlgorithmParameters(),
-            Algorithm.AntColonyOptimization => new AntColonyParameters(),
-            Algorithm.TabuSearch => new TabuSearchParameters(),
-            Algorithm.GaAcoAlgorithm => new GaAcoParameters(),
-            Algorithm.GaTsAlgorithm => new GaTsParameters(),
-            Algorithm.TsAcoAlgorithm => new TsAcoParameters(),
-            _ => new GeneticAlgorithmParameters()
-        };
+        parametersDictionary.TryGetValue(algorithm, out var parameters);
+        AlgorithmParameters = parameters ?? new GeneticAlgorithmParameters();
     }
 }
