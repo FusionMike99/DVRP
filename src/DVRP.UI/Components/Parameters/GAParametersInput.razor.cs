@@ -1,27 +1,38 @@
 ﻿using DVRP.Domain.Entities;
 using Microsoft.AspNetCore.Components;
 
-namespace DVRP.UI.Components.Parameters
-{
-    public partial class GaParametersInput
-    {
-        private GeneticAlgorithmParameters _parameters = new();
+namespace DVRP.UI.Components.Parameters;
 
-        [Parameter]
-        public DvrpSolverParameters Parameters
+public partial class GaParametersInput
+{
+    private GeneticAlgorithmParameters _parameters = new();
+
+    private GeneticAlgorithmParameters TypedParameters
+    {
+        get => _parameters;
+        set
         {
-            get => _parameters;
-            set
+            if(_parameters != value)
             {
-                if (value is GeneticAlgorithmParameters castedValue && _parameters != castedValue)
-                {
-                    _parameters = castedValue;
-                    ParametersChanged.InvokeAsync(castedValue);
-                }
+                _parameters = value;
+                ParametersChanged.InvokeAsync(value);
             }
         }
-
-        [Parameter]
-        public EventCallback<DvrpSolverParameters> ParametersChanged { get; set; }
     }
+
+    [Parameter]
+    public DvrpSolverParameters Parameters
+    {
+        get => TypedParameters;
+        set
+        {
+            if (value is GeneticAlgorithmParameters castedValue)
+            {
+                TypedParameters = castedValue;
+            }
+        }
+    }
+
+    [Parameter]
+    public EventCallback<DvrpSolverParameters> ParametersChanged { get; set; }
 }

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace DVRP.UI.Components.Data;
 
-public partial class DVRPDataInput
+public partial class DvrpDataInput
 {
     private string _selectedTab = "depots";
     private DvrpModel _data = new();

@@ -1,19 +1,22 @@
 ﻿@using DVRP.Domain.Entities;
 
 <DataGrid TItem="Vehicle" Data="@Vehicles" @bind-SelectedRow="@_selectedVehicle"
-          Editable Responsive ShowPager CommandMode="DataGridCommandMode.ButtonRow">
+          Editable EditMode="DataGridEditMode.Popup" Responsive ShowPager CommandMode="DataGridCommandMode.ButtonRow" >
     <DataGridColumns>
         <DataGridColumn Field="@nameof(Vehicle.Id)" Caption="Id" Sortable="false" />
         <DataGridNumericColumn Field="@nameof(Vehicle.Capacity)" Caption="Capacity" Editable />
         <DataGridSelectColumn Field="@nameof(Vehicle.DepotId)" Caption="Depot Id" Editable >
             <EditTemplate>
-                <Select TValue="string" SelectedValue="@((string)(((CellEditContext)context).CellValue))"
-                        SelectedValueChanged="@((v) => ((CellEditContext)context).CellValue = v)">
-                    @foreach (var depot in Depots)
-                    {
-                        <SelectItem Value="@(depot.Id)">@(depot.Id)</SelectItem>
-                    }
-                </Select>
+                <Validation Validator="@CheckDepotId">
+                    <Select TValue="string" SelectedValue="@((string)context.CellValue)"
+                            SelectedValueChanged="@(value => context.CellValue = value)">
+                        <SelectItem>Choose depot</SelectItem>
+                        @foreach (var depot in Depots)
+                        {
+                            <SelectItem Value="@(depot.Id)">@(depot.Id)</SelectItem>
+                        }
+                    </Select>
+                </Validation>
             </EditTemplate>
         </DataGridSelectColumn>
     </DataGridColumns>

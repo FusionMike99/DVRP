@@ -1,0 +1,34 @@
+﻿@using DVRP.Domain.Entities;
+
+<Table Bordered>
+    <TableHeader>
+        <TableRow>
+            <TableHeaderCell>Vehicle</TableHeaderCell>
+            <TableHeaderCell>Route</TableHeaderCell>
+            <TableHeaderCell>Distance</TableHeaderCell>
+        </TableRow>
+    </TableHeader>
+    <TableBody>
+        @foreach(var route in Solution?.Routes ?? Enumerable.Empty<VehicleRoute>())
+        {
+            <TableRow>
+                <TableRowHeader>@route.Vehicle.Id</TableRowHeader>
+                <Icon Name="IconName.ArrowRight" />
+                <TableRowCell>
+                    @for (int i = 0; i < route.Locations.Count - 1; i++)
+                    {
+                        @route.Locations[i] <Icon Name="IconName.ArrowRight"/>
+                    }
+                    @route.Locations[^1]
+                </TableRowCell>
+                <TableRowCell>@route.Distance</TableRowCell>
+            </TableRow>
+        }
+    </TableBody>
+    <TableFooter>
+        <TableRow>
+            <TableRowHeader>Total distance:</TableRowHeader>
+            <TableRowCell>@Solution?.TotalDistance</TableRowCell>
+        </TableRow>
+    </TableFooter>
+</Table>

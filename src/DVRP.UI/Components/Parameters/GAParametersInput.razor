@@ -6,25 +6,25 @@
         <Field Horizontal>
             <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Generations</FieldLabel>
             <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
-                <NumericEdit Min="1" Step="1" @bind-Value="@_parameters.MaxGenerations" />
+                <NumericEdit Min="1" Step="1" @bind-Value:event="oninput" @bind-Value="@TypedParameters.MaxGenerations" />
             </FieldBody>
         </Field>
         <Field Horizontal>
             <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Population Size</FieldLabel>
             <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
-                <NumericEdit Min="1" Step="1" @bind-Value="@_parameters.PopulationSize" />
+                <NumericEdit Min="1" Step="1" @bind-Value:event="oninput" @bind-Value="@TypedParameters.PopulationSize" />
             </FieldBody>
         </Field>
         <Field Horizontal>
             <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Mutation Rate</FieldLabel>
             <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
-                <NumericEdit Min="0" Max="1" Step="0.05M" @bind-Value="@_parameters.MutationRate" />
+                <NumericEdit TValue="double" Culture="en-us" @bind-Value:event="oninput" Min="0.00D" Max="1.00D" @bind-Value="@TypedParameters.MutationRate" />
             </FieldBody>
         </Field>
         <Field Horizontal>
-            <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Mutation Rate</FieldLabel>
+            <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Crossover Rate</FieldLabel>
             <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
-                <NumericEdit Min="0" Max="1" Step="0.05M" @bind-Value="@_parameters.CrossoverRate" />
+                <NumericEdit TValue="double" Culture="en-us" @bind-Value:event="oninput" Min="0.00" Max="1.00D" @bind-Value="@TypedParameters.CrossoverRate" />
             </FieldBody>
         </Field>
     </CardBody>

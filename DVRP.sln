@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DVRP.UI", "src\DVRP.UI\DVRP
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DVRP.Application", "src\DVRP.Application\DVRP.Application.csproj", "{443330B1-CA49-4DD0-95D1-1DBE1D3AF9A0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DVRP.Console", "src\DVRP.Console\DVRP.Console.csproj", "{8AFD1426-79AD-4010-9438-626150F701A1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DVRP.Console", "src\DVRP.Console\DVRP.Console.csproj", "{8AFD1426-79AD-4010-9438-626150F701A1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

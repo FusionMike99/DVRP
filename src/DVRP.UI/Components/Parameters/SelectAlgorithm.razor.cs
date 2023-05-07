@@ -2,7 +2,7 @@
 using DVRP.Domain.Enums;
 using Microsoft.AspNetCore.Components;
 
-namespace DVRP.UI.Pages
+namespace DVRP.UI.Components.Parameters
 {
     public partial class SelectAlgorithm
     {
