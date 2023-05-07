@@ -10,20 +10,14 @@
     </TableHeader>
     <TableBody>
         @foreach(var route in Solution?.Routes ?? Enumerable.Empty<VehicleRoute>())
-        {
-            <TableRow>
+{
+    <TableRow>
                 <TableRowHeader>@route.Vehicle.Id</TableRowHeader>
                 <Icon Name="IconName.ArrowRight" />
-                <TableRowCell>
-                    @for (int i = 0; i < route.Locations.Count - 1; i++)
-                    {
-                        @route.Locations[i].Id <Icon Name="IconName.ArrowRight"/>
-                    }
-                    @route.Locations[^1].Id
-                </TableRowCell>
+                <TableRowCell>@string.Join(" -> ", route.Locations.Select(l => l.Id))</TableRowCell>
                 <TableRowCell>@route.Distance.ToString("F0")</TableRowCell>
             </TableRow>
-        }
+}
     </TableBody>
     <TableFooter>
         <TableRow>

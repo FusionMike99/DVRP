@@ -2,55 +2,54 @@
 using DVRP.Domain.Enums;
 using Microsoft.AspNetCore.Components;
 
-namespace DVRP.UI.Components.Parameters
+namespace DVRP.UI.Components.Parameters;
+
+public partial class SelectAlgorithm
 {
-    public partial class SelectAlgorithm
+    private string SelectedTab => _selectedAlgorithm.ToString();
+
+    private Algorithm _selectedAlgorithm = Algorithm.GeneticAlgorithm;
+    private DvrpSolverParameters _algorithmParameters = null!;
+
+    [Parameter]
+    public Algorithm SelectedAlgorithm
     {
-        private string SelectedTab => _selectedAlgorithm.ToString();
-
-        private Algorithm _selectedAlgorithm = Algorithm.GeneticAlgorithm;
-        private DvrpSolverParameters _algorithmParameters;
-
-        [Parameter]
-        public Algorithm SelectedAlgorithm
+        get => _selectedAlgorithm;
+        set
         {
-            get => _selectedAlgorithm;
-            set
+            if (_selectedAlgorithm != value)
             {
-                if (_selectedAlgorithm != value)
-                {
-                    _selectedAlgorithm = value;
-                    SelectedAlgorithmChanged.InvokeAsync(value);
-                }
+                _selectedAlgorithm = value;
+                SelectedAlgorithmChanged.InvokeAsync(value);
             }
         }
+    }
 
-        [Parameter]
-        public DvrpSolverParameters AlgorithmParameters
+    [Parameter]
+    public DvrpSolverParameters AlgorithmParameters
+    {
+        get => _algorithmParameters;
+        set
         {
-            get => _algorithmParameters;
-            set
+            if (_algorithmParameters != value)
             {
-                if (_algorithmParameters != value)
-                {
-                    _algorithmParameters = value;
-                    AlgorithmParametersChanged.InvokeAsync(value);
-                }
+                _algorithmParameters = value;
+                AlgorithmParametersChanged.InvokeAsync(value);
             }
         }
+    }
 
-        [Parameter]
-        public EventCallback<Algorithm> SelectedAlgorithmChanged { get; set; }
+    [Parameter]
+    public EventCallback<Algorithm> SelectedAlgorithmChanged { get; set; }
 
-        [Parameter]
-        public EventCallback<DvrpSolverParameters> AlgorithmParametersChanged { get; set; }
+    [Parameter]
+    public EventCallback<DvrpSolverParameters> AlgorithmParametersChanged { get; set; }
 
-        private Task OnSelectedTabChanged(string algorithm)
-        {
-            var isParsed = Enum.TryParse<Algorithm>(algorithm, out var parsedAlgorithm);
-            SelectedAlgorithm = isParsed ? parsedAlgorithm : Algorithm.GeneticAlgorithm;
+    private Task OnSelectedTabChanged(string algorithm)
+    {
+        var isParsed = Enum.TryParse<Algorithm>(algorithm, out var parsedAlgorithm);
+        SelectedAlgorithm = isParsed ? parsedAlgorithm : Algorithm.GeneticAlgorithm;
 
-            return Task.CompletedTask;
-        }
+        return Task.CompletedTask;
     }
 }

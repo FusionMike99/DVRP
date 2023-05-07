@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Components;
 
 namespace DVRP.UI.Components.Parameters;
 
-public partial class AcoParametersInput
+public partial class TsParametersInput
 {
-    private AntColonyParameters _parameters = new();
+    private TabuSearchParameters _parameters = new();
 
     [Parameter]
     public DvrpSolverParameters Parameters
@@ -13,10 +13,10 @@ public partial class AcoParametersInput
         get => _parameters;
         set
         {
-            if (value is AntColonyParameters castedValue && _parameters != castedValue)
+            if (value is TabuSearchParameters typedValue && _parameters != typedValue)
             {
-                _parameters = castedValue;
-                ParametersChanged.InvokeAsync(castedValue);
+                _parameters = typedValue;
+                ParametersChanged.InvokeAsync(typedValue);
             }
         }
     }
