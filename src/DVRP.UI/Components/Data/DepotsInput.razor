@@ -1,7 +1,7 @@
 ﻿@using DVRP.Domain.Entities;
 
 <DataGrid TItem="Depot" Data="@Depots" @bind-SelectedRow="@_selectedDepot"
-          Editable Responsive ShowPager CommandMode="DataGridCommandMode.ButtonRow">
+          Editable EditMode="DataGridEditMode.Popup" Responsive ShowPager CommandMode="DataGridCommandMode.ButtonRow">
     <DataGridColumns>
         <DataGridNumericColumn Field="@nameof(Depot.Id)" Caption="Id" Sortable="false" />
         <DataGridNumericColumn Field="@nameof(Depot.X)" Caption="Latitude" Editable />

@@ -10,19 +10,18 @@
     </TableHeader>
     <TableBody>
         @foreach(var route in Solution?.Routes ?? Enumerable.Empty<VehicleRoute>())
-{
-    <TableRow>
+        {
+            <TableRow>
                 <TableRowHeader>@route.Vehicle.Id</TableRowHeader>
-                <Icon Name="IconName.ArrowRight" />
                 <TableRowCell>@string.Join(" -> ", route.Locations.Select(l => l.Id))</TableRowCell>
                 <TableRowCell>@route.Distance.ToString("F0")</TableRowCell>
             </TableRow>
-}
+        }
     </TableBody>
     <TableFooter>
         <TableRow>
             <TableRowHeader>Total distance:</TableRowHeader>
-            <TableRowCell>@Solution?.TotalDistance.ToString("F0")</TableRowCell>
+            <TableRowCell ColumnSpan="2">@Solution?.TotalDistance.ToString("F0")</TableRowCell>
         </TableRow>
     </TableFooter>
 </Table>

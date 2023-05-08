@@ -6,13 +6,13 @@
     </Items>
     <Content>
         <TabPanel Name="depots">
-            <DepotsInput Depots="@Data.Depots" />
+            <DepotsInput Depots="@Data.Depots" DepotsChanged="OnDataChanged" />
         </TabPanel>
         <TabPanel Name="vehicles">
-            <VehiclesInput Vehicles="@Data.Vehicles" Depots="@Data.Depots" />
+            <VehiclesInput Vehicles="@Data.Vehicles" VehiclesChanged="OnDataChanged" Depots="@Data.Depots" />
         </TabPanel>
         <TabPanel Name="customers">
-            <CustomersInput Customers="@Data.Customers" />
+            <CustomersInput Customers="@Data.Customers" CustomersChanged="OnDataChanged" />
         </TabPanel>
     </Content>
 </Tabs>

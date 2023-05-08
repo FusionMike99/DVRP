@@ -3,10 +3,10 @@
 <div class="container">
     <h1 class="my-3">Dynamic Vehicle Routing Problem Analyzer</h1>
     <Accordion>
-        <Collapse Visible="true">
+        <Collapse Visible="@(accordionControl == 1)">
             <CollapseHeader>
                 <Heading Size="HeadingSize.Is5">
-                    <AccordionToggle>Select Algorithm</AccordionToggle>
+                    <AccordionToggle Clicked="(_) => accordionControl = 1">Select Algorithm</AccordionToggle>
                 </Heading>
             </CollapseHeader>
             <CollapseBody>
@@ -14,20 +14,20 @@
                                  @bind-AlgorithmParameters="AlgorithmParameters" />
             </CollapseBody>
         </Collapse>
-        <Collapse>
+        <Collapse Visible="@(accordionControl == 2)">
             <CollapseHeader>
                 <Heading Size="HeadingSize.Is5">
-                    <AccordionToggle>Dynamic Vehicle Routing Problem Data</AccordionToggle>
+                    <AccordionToggle Clicked="(_) => accordionControl = 2">Dynamic Vehicle Routing Problem Data</AccordionToggle>
                 </Heading>
             </CollapseHeader>
             <CollapseBody>
-                <DvrpDataInput @bind-Data="@Data" />
+                <DvrpDataInput Data="@Data" DataChanged="OnDataChanged" />
             </CollapseBody>
         </Collapse>
-        <Collapse>
+        <Collapse Visible="@(accordionControl == 3)">
             <CollapseHeader>
                 <Heading Size="HeadingSize.Is5">
-                    <AccordionToggle>Solving Result</AccordionToggle>
+                    <AccordionToggle Clicked="(_) => accordionControl = 3">Solve DVRP</AccordionToggle>
                 </Heading>
             </CollapseHeader>
             <CollapseBody>

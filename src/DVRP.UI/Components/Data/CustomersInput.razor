@@ -1,7 +1,8 @@
 ﻿@using DVRP.Domain.Entities;
 
 <DataGrid TItem="Customer" Data="@Customers" @bind-SelectedRow="@_selectedCustomer"
-          Editable Responsive ShowPager CommandMode="DataGridCommandMode.ButtonRow">
+          Editable EditMode="DataGridEditMode.Popup" Responsive ShowPager CommandMode="DataGridCommandMode.ButtonRow"
+          RowInserted="OnCustomersChanged" RowUpdated="OnCustomersChanged" RowRemoved="OnCustomersChanged">
     <DataGridColumns>
         <DataGridNumericColumn Field="@nameof(Customer.Id)" Caption="Id" Sortable="false" />
         <DataGridNumericColumn Field="@nameof(Customer.X)" Caption="Latitude" Editable />

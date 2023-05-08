@@ -1,5 +1,4 @@
 ﻿using Blazorise;
-using Blazorise.DataGrid;
 using DVRP.Domain.Entities;
 using Microsoft.AspNetCore.Components;
 
@@ -9,10 +8,22 @@ public partial class VehiclesInput
 {   
     private Vehicle? _selectedVehicle;
     
+    private List<Vehicle> _vehicles = new();
     private List<Depot> _depots = new();
     
     [Parameter]
-    public List<Vehicle> Vehicles { get; set; } = new();
+    public List<Vehicle> Vehicles
+    {
+        get => _vehicles;
+        set
+        {
+            if (_vehicles != value)
+            {
+                _vehicles = value;
+                VehiclesChanged.InvokeAsync(value);
+            }
+        }
+    }
 
     [Parameter]
     public List<Depot> Depots
@@ -29,6 +40,9 @@ public partial class VehiclesInput
     }
 
     [Parameter]
+    public EventCallback<List<Vehicle>> VehiclesChanged { get; set; }
+
+    [Parameter]
     public EventCallback<List<Depot>> DepotsChanged { get; set; }
 
     private static void CheckDepotId(ValidatorEventArgs validationArgs)
@@ -39,5 +53,10 @@ public partial class VehiclesInput
         {
             validationArgs.ErrorText = "Depot Id can't be empty";
         }
+    }
+
+    private void OnVehiclesChanged()
+    {
+        VehiclesChanged.InvokeAsync(Vehicles);
     }
 }

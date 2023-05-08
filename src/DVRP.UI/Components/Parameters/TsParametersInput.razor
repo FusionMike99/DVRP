@@ -6,31 +6,31 @@
         <Field Horizontal>
             <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Tabu List Size</FieldLabel>
             <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
-                <NumericEdit Min="1" Step="1" @bind-Value="@_parameters.TabuListSize" />
+                <NumericPicker Min="1" Step="1" @bind-Value="@_parameters.TabuListSize" />
             </FieldBody>
         </Field>
         <Field Horizontal>
             <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Max Iterations</FieldLabel>
             <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
-                <NumericEdit Min="1" Step="1" @bind-Value="@_parameters.MaxIterations" />
+                <NumericPicker Min="1" Step="1" @bind-Value="@_parameters.MaxIterations" />
             </FieldBody>
         </Field>
         <Field Horizontal>
             <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Neighborhood Search Size</FieldLabel>
             <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
-                <NumericEdit Min="1" Step="1" @bind-Value="@_parameters.NeighborhoodSearchSize" />
+                <NumericPicker Min="1" Step="1" @bind-Value="@_parameters.NeighborhoodSearchSize" />
             </FieldBody>
         </Field>
         <Field Horizontal>
             <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Intensification Factor</FieldLabel>
             <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
-                <NumericEdit TValue="double" Min="0.00D" Max="1.00D" @bind-Value="@_parameters.IntensificationFactor" />
+                <NumericPicker Min="0.00D" Max="1.00D" Step="0.05M" @bind-Value="@_parameters.IntensificationFactor" />
             </FieldBody>
         </Field>
         <Field Horizontal>
             <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Diversificatio nFactor</FieldLabel>
             <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
-                <NumericEdit TValue="double" Min="0.00" Max="1.00D" @bind-Value="@_parameters.DiversificationFactor" />
+                <NumericPicker Min="0.00" Max="1.00D" Step="0.05M" @bind-Value="@_parameters.DiversificationFactor" />
             </FieldBody>
         </Field>
     </CardBody>

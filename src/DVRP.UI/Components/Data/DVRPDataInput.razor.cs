@@ -31,4 +31,9 @@ public partial class DvrpDataInput
 
         return Task.CompletedTask;
     }
+
+    private void OnDataChanged()
+    {
+        DataChanged.InvokeAsync(Data);
+    }
 }

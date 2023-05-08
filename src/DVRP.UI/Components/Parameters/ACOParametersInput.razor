@@ -6,31 +6,31 @@
         <Field Horizontal>
             <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Max Iterations</FieldLabel>
             <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
-                <NumericEdit Min="1" Step="1" @bind-Value="@_parameters.MaxIterations" />
+                <NumericPicker Min="1" Step="1" @bind-Value="@_parameters.MaxIterations" />
             </FieldBody>
         </Field>
         <Field Horizontal>
             <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Alpha</FieldLabel>
             <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
-                <NumericEdit Min="0" Step="0.05M" @bind-Value="@_parameters.Alpha" />
+                <NumericPicker Min="0" Step="0.05M" @bind-Value="@_parameters.Alpha" />
             </FieldBody>
         </Field>
         <Field Horizontal>
             <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Beta</FieldLabel>
             <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
-                <NumericEdit Min="0" Step="0.05M" @bind-Value="@_parameters.Beta" />
+                <NumericPicker Min="0" Step="0.05M" @bind-Value="@_parameters.Beta" />
             </FieldBody>
         </Field>
         <Field Horizontal>
             <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Evaporation Rate</FieldLabel>
             <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
-                <NumericEdit Min="0" Step="0.05M" @bind-Value="@_parameters.EvaporationRate" />
+                <NumericPicker Min="0" Step="0.05M" @bind-Value="@_parameters.EvaporationRate" />
             </FieldBody>
         </Field>
         <Field Horizontal>
             <FieldLabel ColumnSize="ColumnSize.IsFull.OnTablet.Is2.OnDesktop">Q</FieldLabel>
             <FieldBody ColumnSize="ColumnSize.IsFull.OnTablet.Is10.OnDesktop">
-                <NumericEdit Min="0" Step="0.05M" @bind-Value="@_parameters.Q" />
+                <NumericPicker Min="0" Step="0.05M" @bind-Value="@_parameters.Q" />
             </FieldBody>
         </Field>
     </CardBody>

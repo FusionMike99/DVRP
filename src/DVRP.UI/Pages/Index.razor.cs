@@ -19,6 +19,7 @@ public partial class Index
         { Algorithm.GaTsAlgorithm, new GaTsParameters() },
         { Algorithm.TsAcoAlgorithm, new TsAcoParameters() }
     };
+    private byte accordionControl = 1;
 
     private Algorithm SelectedAlgorithm { get; set; } = Algorithm.GeneticAlgorithm;
     private DvrpSolverParameters AlgorithmParameters { get; set; } = new GeneticAlgorithmParameters();
@@ -40,5 +41,15 @@ public partial class Index
         SelectedAlgorithm = algorithm;
         parametersDictionary.TryGetValue(algorithm, out var parameters);
         AlgorithmParameters = parameters ?? new GeneticAlgorithmParameters();
+    }
+
+    private void OnDataChanged(DvrpModel data)
+    {
+        Data = data;
+        if (Solution is not null)
+        {
+            accordionControl = 3;
+            RunSolver();
+        }
     }
 }
