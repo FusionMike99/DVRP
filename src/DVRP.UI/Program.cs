@@ -24,6 +24,7 @@ builder.Services.AddBlazorise(options => options.Immediate = true)
 
 builder.Services.AddScoped<GeneticAlgorithmSolver>();
 builder.Services.AddScoped<AntColonyOptimizationSolver>();
+builder.Services.AddScoped<TabuSearchSolver>();
 builder.Services.AddScoped<GaAcoSolver>();
 builder.Services.AddScoped<GaTsSolver>();
 builder.Services.AddScoped<TsAcoSolver>();
@@ -33,6 +34,7 @@ builder.Services.AddScoped<DvrpSolverSelection>(sp => key =>
     {
         Algorithm.GeneticAlgorithm => sp.GetRequiredService<GeneticAlgorithmSolver>(),
         Algorithm.AntColonyOptimization => sp.GetRequiredService<AntColonyOptimizationSolver>(),
+        Algorithm.TabuSearch => sp.GetRequiredService<TabuSearchSolver>(),
         Algorithm.GaAcoAlgorithm => sp.GetRequiredService<GaAcoSolver>(),
         Algorithm.GaTsAlgorithm => sp.GetRequiredService<GaTsSolver>(),
         Algorithm.TsAcoAlgorithm => sp.GetRequiredService<TsAcoSolver>(),

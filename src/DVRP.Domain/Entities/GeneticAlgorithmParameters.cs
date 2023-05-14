@@ -2,8 +2,8 @@
 
 public class GeneticAlgorithmParameters : DvrpSolverParameters
 {
-    public int MaxGenerations { get; set; }
-    public int PopulationSize { get; set; }
-    public double MutationRate { get; set; }
-    public double CrossoverRate { get; set; }
+    public int MaxGenerations { get; set; } = 100;
+    public int PopulationSize { get; set; } = 50;
+    public double MutationRate { get; set; } = 0.01;
+    public double CrossoverRate { get; set; } = 0.4;
 }

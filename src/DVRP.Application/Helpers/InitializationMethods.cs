@@ -49,7 +49,7 @@ public static class InitializationMethods
     {
         var solution = NearestNeighborInitialization(model);
 
-        int routesToRandomize = (int)(randomizationRatio * model.Vehicles.Count);
+        int routesToRandomize = (int)(randomizationRatio * solution.Routes.Count);
 
         for (int i = 0; i < routesToRandomize; i++)
         {

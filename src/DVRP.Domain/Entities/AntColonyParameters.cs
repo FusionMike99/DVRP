@@ -2,10 +2,10 @@
 
 public class AntColonyParameters : DvrpSolverParameters
 {
-    public int MaxIterations { get; set; }
-    public int NumberOfAnts { get; set; }
-    public double Alpha { get; set; }
-    public double Beta { get; set; }
-    public double EvaporationRate { get; set; }
-    public double Q { get; set; }
+    public int MaxIterations { get; set; } = 100;
+    public int NumberOfAnts { get; set; } = 10;
+    public double Alpha { get; set; } = 1;
+    public double Beta { get; set; } = 2;
+    public double EvaporationRate { get; set; } = 0.1;
+    public double Q { get; set; } = 10;
 }

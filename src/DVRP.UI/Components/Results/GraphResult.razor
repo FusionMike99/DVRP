@@ -1,9 +1,3 @@
-﻿@using Blazorise.Charts.Streaming
-@using Blazorise.Charts
-
-
-<LineChart @ref="horizontalLineChart" TItem="LiveDataPoint" OptionsObject="@horizontalLineChartOptions">
-    <ChartStreaming TItem="LiveDataPoint"
-                    Options="new ChartStreamingOptions { Delay = 2000, Duration = 10000 }"
-                    Refreshed="@OnHorizontalLineRefreshed" />
+﻿<LineChart @ref="@lineChart" TItem="int" Options="@lineChartOptions">
+    <ChartDataLabels TItem="int" Datasets="@lineDataLabelsDatasets" Options="@lineDataLabelsOptions" />
 </LineChart>

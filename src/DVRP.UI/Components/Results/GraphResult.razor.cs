@@ -1,89 +1,173 @@
-﻿using Blazorise.Charts.Streaming;
-using Blazorise.Charts;
+﻿using Blazorise.Charts;
+using Blazorise.Charts.DataLabels;
+using DVRP.Domain.Entities;
+using Microsoft.AspNetCore.Components;
+using System.Drawing;
 
 namespace DVRP.UI.Components.Results;
 
 public partial class GraphResult
 {
-    LineChart<LiveDataPoint> horizontalLineChart;
-    Random random = new Random(DateTime.Now.Millisecond);
+    private LineChart<int> lineChart;
 
-    string[] Labels = { "Red", "Blue", "Yellow", "Green", "Purple", "Orange" };
-    List<string> backgroundColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 0.2f), ChartColor.FromRgba(54, 162, 235, 0.2f), ChartColor.FromRgba(255, 206, 86, 0.2f), ChartColor.FromRgba(75, 192, 192, 0.2f), ChartColor.FromRgba(153, 102, 255, 0.2f), ChartColor.FromRgba(255, 159, 64, 0.2f) };
-    List<string> borderColors = new List<string> { ChartColor.FromRgba(255, 99, 132, 1f), ChartColor.FromRgba(54, 162, 235, 1f), ChartColor.FromRgba(255, 206, 86, 1f), ChartColor.FromRgba(75, 192, 192, 1f), ChartColor.FromRgba(153, 102, 255, 1f), ChartColor.FromRgba(255, 159, 64, 1f) };
+    private DvrpSolution? _solution;
 
-    public class LiveDataPoint
+    [Parameter]
+    public DvrpSolution? Solution
     {
-        public double X { get; set; }
-
-        public double Y { get; set; }
+        get => _solution;
+        set
+        {
+            if (_solution != value)
+            {
+                _solution = value;
+                SolutionChanged.InvokeAsync(value);
+            }
+        }
     }
 
-    LineChartOptions horizontalLineChartOptions = new()
+    [Parameter]
+    public EventCallback<DvrpSolution?> SolutionChanged { get; set; }
+
+    // define regular chart options
+    private readonly LineChartOptions lineChartOptions = new()
     {
+        AspectRatio = 5d / 3d,
+        Layout = new()
+        {
+            Padding = new()
+            {
+                Top = 32,
+                Right = 16,
+                Bottom = 16,
+                Left = 8
+            }
+        },
+        Elements = new()
+        {
+            Line = new()
+            {
+                Fill = false,
+                Tension = 0.4,
+            }
+        },
         Scales = new()
         {
             Y = new()
             {
-                Title = new()
-                {
-                    Display = true,
-                    Text = "Value"
-                }
-            },
-            X = new()
+                Stacked = false,
+            }
+        },
+        Plugins = new()
+        {
+            Legend = new()
             {
-                
+                Display = true
             }
         }
     };
+
+    // define specific dataset styles by targeting them with the DatasetIndex
+    private readonly List<ChartDataLabelsDataset> lineDataLabelsDatasets = new()
+    {
+        new()
+        {
+            DatasetIndex = 0,
+            Options = new()
+            {
+                BackgroundColor = BackgroundColors[0],
+                BorderColor = BorderColors[1]
+            }
+        },
+        new()
+        {
+            DatasetIndex = 1,
+            Options = new ()
+            {
+                BackgroundColor = BackgroundColors[1],
+                BorderColor = BorderColors[2],
+            }
+        },
+        new()
+        {
+            DatasetIndex = 2,
+            Options = new ()
+            {
+                BackgroundColor = BackgroundColors[2],
+                BorderColor = BorderColors[0]
+            }
+        },
+    };
+
+    // some shared options for all data-labels
+    private readonly ChartDataLabelsOptions lineDataLabelsOptions = new()
+    {
+        BorderRadius = 4,
+        Color = "#ffffff",
+        Font = new()
+        {
+            Weight = "bold"
+        },
+        Formatter = ChartMathFormatter.Round,
+        Padding = new(6)
+    };
+
+    private static string[] Labels = new string[] { "1", "2", "3", "4", "5", "6" };
+    private static string[] BackgroundColors = new string[] { "#4bc0c0", "#36a2eb", "#ff3d88" };
+    private static string[] BorderColors = new string[] { "#4bc0c0", "#36a2eb", "#ff3d88" };
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await Task.WhenAll(
-                HandleRedraw(horizontalLineChart, GetLineChartDataset1));
+            await HandleRedraw(lineChart, GetLineChartDataset);
+
+            await lineChart.Clear();
+
+            await lineChart.AddLabelsDatasetsAndUpdate(Labels,
+                GetLineChartDataset(0),
+                GetLineChartDataset(1),
+                GetLineChartDataset(2));
         }
     }
 
-    async Task HandleRedraw<TDataSet, TItem, TOptions, TModel>(BaseChart<TDataSet, TItem, TOptions, TModel> chart, params Func<TDataSet>[] getDataSets)
+    private async Task HandleRedraw<TDataSet, TItem, TOptions, TModel>(BaseChart<TDataSet, TItem, TOptions, TModel> chart, Func<int, TDataSet> getDataSet)
         where TDataSet : ChartDataset<TItem>
         where TOptions : ChartOptions
         where TModel : ChartModel
     {
         await chart.Clear();
 
-        await chart.AddLabelsDatasetsAndUpdate(Labels, getDataSets.Select(x => x.Invoke()).ToArray());
+        await chart.AddLabelsDatasetsAndUpdate(Labels,
+            getDataSet(0),
+            getDataSet(1),
+            getDataSet(2));
     }
 
-    LineChartDataset<LiveDataPoint> GetLineChartDataset1()
+    private LineChartDataset<int> GetLineChartDataset(int colorIndex)
     {
-        return new LineChartDataset<LiveDataPoint>
+        return new()
         {
-            Data = new List<LiveDataPoint>(),
-            Label = "Dataset 1 (linear interpolation)",
-            BackgroundColor = backgroundColors[0],
-            BorderColor = borderColors[0],
-            Fill = false,
-            Tension = 0,
-            BorderDash = new List<int> { 8, 4 },
+            Label = "# of randoms",
+            Data = RandomizeData(7, 9),
+            BackgroundColor = BackgroundColors[2-colorIndex],
+            BorderColor = BorderColors[2-colorIndex],
         };
     }
 
-    Task OnHorizontalLineRefreshed(ChartStreamingData<LiveDataPoint> data)
+    private static List<int> RandomizeData(int min, int max)
     {
-        data.Value = new LiveDataPoint
-        {
-            X = RandomScalingFactor(),
-            Y = RandomScalingFactor(),
-        };
-
-        return Task.CompletedTask;
+        return Enumerable.Range(0, Labels.Count()).Select(x => Random.Shared.Next(min, max)).ToList();
     }
 
-    double RandomScalingFactor()
+    private static IDictionary<string, string> RandomColors(params string[] labels)
+    { 
+        return labels.ToDictionary(l => l, _ => GetRandomHexColor());
+    }
+
+    private static string GetRandomHexColor()
     {
-        return (random.NextDouble() > 0.5 ? 1.0 : -1.0) * Math.Round(random.NextDouble() * 100);
+        var color = Color.FromArgb(Random.Shared.Next(256), Random.Shared.Next(256), Random.Shared.Next(256));
+        return $"#{color.R:X2}{color.G:X2}{color.B:X2}";
     }
 }

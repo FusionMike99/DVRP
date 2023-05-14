@@ -32,23 +32,17 @@ public class TabuSearchSolver : IDvrpSolver
                 continue;
             }
 
-            if (bestNeighbor.Fitness < bestSolution.Fitness)
-            {
-                bestSolution = bestNeighbor;
-            }
-
             tabuList.Add(initialSolution);
             if (tabuList.Count > tabuParameters.TabuListSize)
             {
                 tabuList.RemoveAt(0);
             }
 
-            initialSolution = bestNeighbor;
-
             // Apply intensification strategy if the current solution improves
-            if (initialSolution.Fitness < bestSolution.Fitness)
+            if (bestNeighbor.Fitness < bestSolution.Fitness)
             {
-                initialSolution = ApplyIntensification(initialSolution, model, tabuParameters);
+                bestSolution = bestNeighbor;
+                initialSolution = ApplyIntensification(bestNeighbor, model, tabuParameters);
             }
         }
 
@@ -94,7 +88,8 @@ public class TabuSearchSolver : IDvrpSolver
 
         foreach (var vehicle in model.Vehicles)
         {
-            var route = new VehicleRoute { Vehicle = vehicle };
+            var depot = model.Depots.First(d => d.Id == vehicle.DepotId);  // Get the depot associated with the vehicle
+            var route = new VehicleRoute { Vehicle = vehicle, Locations = new() { depot } };  // Start from the associated depot
             double currentCapacity = vehicle.Capacity;
 
             while (unassignedCustomers.Count > 0)
@@ -116,16 +111,14 @@ public class TabuSearchSolver : IDvrpSolver
                                        s.Item2 == saving.Item1 || s.Item2 == saving.Item2);
             }
 
-            if (route.Locations.Count > 0)
+            route.Locations.Add(depot);  // Return to the associated depot
+            if (route.Locations.Count > 2)  // Exclude routes with only depots
             {
-                var closestDepot = model.Depots.OrderBy(d => d.CalculateDistance(route.Locations.First())).First();
-                route.Locations.Insert(0, closestDepot);
-                route.Locations.Add(closestDepot);
                 routes.Add(route);
             }
         }
 
-        //// If any customers remain unassigned, assign them to the nearest depot in a single-visit route
+        // If any customers remain unassigned, assign them to the nearest depot in a single-visit route
         while (unassignedCustomers.Count > 0)
         {
             foreach (var vehicle in model.Vehicles)
@@ -162,6 +155,7 @@ public class TabuSearchSolver : IDvrpSolver
         return routes;
     }
 
+
     private static List<DvrpSolution> GenerateNeighbors(DvrpSolution currentSolution, DvrpModel model, TabuSearchParameters tabuParameters)
     {
         var neighbors = new List<DvrpSolution>();
@@ -186,17 +180,27 @@ public class TabuSearchSolver : IDvrpSolver
                     if (route2.Locations.OfType<Customer>().Sum(c => c.Demand) + customer1.Demand <= route2.Vehicle.Capacity)
                     {
                         var relocatedSolution = currentSolution.Clone();
-                        var relocatedRoute1 = relocatedSolution.Routes.Single(r => r.Vehicle.Id == route1.Vehicle.Id);
-                        var relocatedRoute2 = relocatedSolution.Routes.Single(r => r.Vehicle.Id == route2.Vehicle.Id);
+                        var relocatedRoutes1 = relocatedSolution.Routes.Where(r => r.Vehicle.Id == route1.Vehicle.Id).ToList();
+                        var relocatedRoutes2 = relocatedSolution.Routes.Where(r => r.Vehicle.Id == route2.Vehicle.Id).ToList();
 
-                        // Move customer1 from route1 to route2
-                        relocatedRoute1.Locations.Remove(customer1);
-                        relocatedRoute2.Locations.Insert(relocatedRoute2.Locations.Count - 1, customer1);
+                        foreach (var relocatedRoute1 in relocatedRoutes1)
+                        {
+                            if (relocatedRoute1.Locations.Contains(customer1))
+                            {
+                                // Move customer1 from route1 to route2
+                                relocatedRoute1.Locations.Remove(customer1);
+                                foreach (var relocatedRoute2 in relocatedRoutes2)
+                                {
+                                    relocatedRoute2.Locations.Insert(relocatedRoute2.Locations.Count - 1, customer1);
+                                }
 
-                        // Update fitness
-                        relocatedSolution.CalculateFitness(model.Depots.Count);
+                                // Update fitness
+                                relocatedSolution.CalculateFitness(model.Depots.Count);
 
-                        neighbors.Add(relocatedSolution);
+                                neighbors.Add(relocatedSolution);
+                                break;
+                            }
+                        }
                     }
                 }
 
@@ -212,24 +216,40 @@ public class TabuSearchSolver : IDvrpSolver
 
                     // Swap
                     var swappedSolution = currentSolution.Clone();
-                    var swappedRoute = swappedSolution.Routes.First(r => r.Vehicle.Id == route1.Vehicle.Id);
-                    swappedRoute.Locations[customer1Index] = customer2;
-                    swappedRoute.Locations[customer2Index] = customer1;
+                    var swappedRoutes = swappedSolution.Routes.Where(r => r.Vehicle.Id == route1.Vehicle.Id).ToList();
 
-                    // Update fitness
-                    swappedSolution.CalculateFitness(model.Depots.Count);
+                    foreach (var swappedRoute in swappedRoutes)
+                    {
+                        if (swappedRoute.Locations.Contains(customer1) && swappedRoute.Locations.Contains(customer2))
+                        {
+                            swappedRoute.Locations[customer1Index] = customer2;
+                            swappedRoute.Locations[customer2Index] = customer1;
 
-                    neighbors.Add(swappedSolution);
+                            // Update fitness
+                            swappedSolution.CalculateFitness(model.Depots.Count);
+
+                            neighbors.Add(swappedSolution);
+                            break;
+                        }
+                    }
 
                     // Two-opt
                     var twoOptSolution = currentSolution.Clone();
-                    var twoOptRoute = twoOptSolution.Routes.First(r => r.Vehicle.Id == route1.Vehicle.Id);
-                    twoOptRoute.Locations.Reverse(Math.Min(customer1Index, customer2Index), Math.Abs(customer1Index - customer2Index) + 1);
+                    var twoOptRoutes = twoOptSolution.Routes.Where(r => r.Vehicle.Id == route1.Vehicle.Id).ToList();
 
-                    // Update fitness
-                    twoOptSolution.CalculateFitness(model.Depots.Count);
+                    foreach (var twoOptRoute in twoOptRoutes)
+                    {
+                        if (twoOptRoute.Locations.Contains(customer1) && twoOptRoute.Locations.Contains(customer2))
+                        {
+                            twoOptRoute.Locations.Reverse(Math.Min(customer1Index, customer2Index), Math.Abs(customer1Index - customer2Index) + 1);
 
-                    neighbors.Add(twoOptSolution);
+                            // Update fitness
+                            twoOptSolution.CalculateFitness(model.Depots.Count);
+
+                            neighbors.Add(twoOptSolution);
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -306,7 +326,7 @@ public class TabuSearchSolver : IDvrpSolver
                 for (int j = i + 1; j < route.Locations.Count - 1; j++)
                 {
                     var twoOptSolution = intensifiedSolution.Clone();
-                    var twoOptRoute = twoOptSolution.Routes.Single(r => r.Vehicle.Id == route.Vehicle.Id);
+                    var twoOptRoute = twoOptSolution.Routes.First(r => r.Vehicle.Id == route.Vehicle.Id);
 
                     // Apply 2-opt
                     twoOptRoute.Locations.Reverse(i, j - i + 1);
